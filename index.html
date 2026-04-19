@@ -8,6 +8,7 @@
     rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234a90e2'/><text x='50' y='68' font-size='58' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'>猜</text></svg>"
   />
+  <link rel="apple-touch-icon" href="guess_icon_apple_webapp.png">
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root {
@@ -909,19 +910,8 @@
 
     document.body.setAttribute("data-theme", savedTheme);
 
-    const songLibrary = albumData.flatMap(item =>
-      item.tracks.map(title => ({
-        title,
-        album: item.album,
-        year: item.year,
-        artist: "周杰倫",
-        youtubeId: persistedMap[title]?.youtubeId || manualSeeds[title] || "",
-        introStart: persistedMap[title]?.introStart ?? 0,
-        interludeStart: persistedMap[title]?.interludeStart ?? 60
-      }))
-    );
-
-    let selectedAlbums = new Set(albumData.map(a => a.album));
+    let songLibrary = [];
+    let selectedAlbums = new Set();
     let answerMode = savedAnswerMode;
     let albumMode = savedAlbumMode;
     let gameMode = "intro";
@@ -942,6 +932,38 @@
     let currentAlbumPool = [];
 
     const $ = id => document.getElementById(id);
+
+    async function loadSongsFromJson() {
+        try {
+            const res = await fetch("./songs.json", { cache: "no-store" });
+            if (!res.ok) throw new Error("songs.json 讀取失敗");
+
+            const data = await res.json();
+
+            if (!Array.isArray(data)) {
+            throw new Error("songs.json 格式錯誤，必須是陣列");
+            }
+
+            songLibrary = data.map(song => {
+            const saved = persistedMap[song.title] || {};
+
+            return {
+                title: song.title || "",
+                album: song.album || "",
+                year: Number(song.year || 0),
+                artist: song.artist || "周杰倫",
+                youtubeId: saved.youtubeId || song.youtubeId || "",
+                introStart: Number(saved.introStart ?? song.introStart ?? 0),
+                interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
+            };
+            });
+
+            console.log("songs.json 載入成功，共", songLibrary.length, "首");
+        } catch (err) {
+            console.error(err);
+            alert("讀取 songs.json 失敗，請確認檔案存在且格式正確。");
+        }
+    }
 
     function onYouTubeIframeAPIReady() {
       ytReady = true;
@@ -992,19 +1014,25 @@
       $("customAlbumGroup").classList.toggle("hidden", albumMode !== "custom");
     }
 
+    function getAllAlbums() {
+        return [...new Set(songLibrary.map(song => song.album).filter(Boolean))];
+    }
+
     function renderAlbumGrid() {
-      $("albumGrid").innerHTML = "";
-      albumData.forEach(i => {
-        const b = document.createElement("button");
-        b.className = "ab" + (selectedAlbums.has(i.album) ? " active" : "");
-        b.textContent = i.album;
-        b.onclick = () => {
-          if (selectedAlbums.has(i.album)) selectedAlbums.delete(i.album);
-          else selectedAlbums.add(i.album);
-          renderAlbumGrid();
-        };
-        $("albumGrid").appendChild(b);
-      });
+        const albums = getAllAlbums();
+        $("albumGrid").innerHTML = "";
+
+        albums.forEach(albumName => {
+            const b = document.createElement("button");
+            b.className = "ab" + (selectedAlbums.has(albumName) ? " active" : "");
+            b.textContent = albumName;
+            b.onclick = () => {
+            if (selectedAlbums.has(albumName)) selectedAlbums.delete(albumName);
+            else selectedAlbums.add(albumName);
+            renderAlbumGrid();
+            };
+            $("albumGrid").appendChild(b);
+        });
     }
 
     function clearAllAlbums() {
@@ -1145,7 +1173,7 @@
     }
 
     function selectAllAlbums() {
-      selectedAlbums = new Set(albumData.map(a => a.album));
+      selectedAlbums = new Set(getAllAlbums());
       renderAlbumGrid();
     }
 
@@ -1159,7 +1187,7 @@
     }
 
     function chooseAlbumsForGame() {
-      const all = albumData.map(a => a.album);
+      const all = getAllAlbums();
 
       if (albumMode === "all") return all;
       if (albumMode === "single_random") {
@@ -1199,6 +1227,7 @@
     }
 
     function startGame(mode) {
+      hidePointEffect();
       currentAlbumPool = chooseAlbumsForGame();
       const pool = getFilteredSongsForCurrentGame();
 
@@ -1236,6 +1265,7 @@
       stopTimer();
       stopPlayback();
       startGame(gameMode);
+      hidePointEffect();
     }
 
     function quitToHome() {
@@ -1247,6 +1277,7 @@
         $("pauseOverlay").classList.remove("show");
         $("gameOver").classList.remove("show");
         setActiveScreen("home");
+        hidePointEffect();
     }
 
     function pickClipType() {
@@ -1770,10 +1801,21 @@
       });
     });
 
-    renderAlbumGrid();
-    renderSettingButtons();
-    renderManageList();
-    updateHighScoreUI();
+    function hidePointEffect() {
+        $("floatFx").classList.remove("show");
+        $("floatFx").style.opacity = "0";
+    }
+
+    async function initApp() {
+        await loadSongsFromJson();
+        selectedAlbums = new Set(getAllAlbums());
+        renderAlbumGrid();
+        renderSettingButtons();
+        renderManageList();
+        updateHighScoreUI();
+    }
+
+    initApp();
   </script>
 </body>
 </html>
