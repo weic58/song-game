@@ -2,10 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>猜歌王</title>
   <link
     rel="icon"
@@ -43,15 +40,8 @@
       --shadow: 0 10px 24px rgba(60, 86, 160, 0.12);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
@@ -84,10 +74,7 @@
       cursor: pointer;
     }
 
-    .hc {
-      display: flex;
-      gap: 8px;
-    }
+    .hc { display: flex; gap: 8px; }
 
     .ib {
       background: none;
@@ -98,9 +85,7 @@
       padding: 6px;
     }
 
-    .ib:hover {
-      transform: scale(1.08);
-    }
+    .ib:hover { transform: scale(1.08); }
 
     .screen {
       display: none;
@@ -110,9 +95,7 @@
       overflow: hidden;
     }
 
-    .screen.active {
-      display: flex;
-    }
+    .screen.active { display: flex; }
 
     .loading {
       color: var(--accent);
@@ -137,9 +120,7 @@
       transition: 0.18s ease;
     }
 
-    .card:hover {
-      transform: translateY(-3px) scale(1.01);
-    }
+    .card:hover { transform: translateY(-3px) scale(1.01); }
 
     .card h2 {
       margin: 0 0 8px;
@@ -151,21 +132,10 @@
       opacity: 0.95;
     }
 
-    .b1 {
-      background: linear-gradient(135deg, #8e44ad, #5b2c83);
-    }
-
-    .b2 {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
-    }
-
-    .b3 {
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-    }
-
-    .b4 {
-      background: linear-gradient(135deg, #f39c12, #d35400);
-    }
+    .b1 { background: linear-gradient(135deg, #8e44ad, #5b2c83); }
+    .b2 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+    .b3 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+    .b4 { background: linear-gradient(135deg, #f39c12, #d35400); }
 
     .badge {
       display: inline-block;
@@ -232,9 +202,7 @@
       -ms-overflow-style: none;
     }
 
-    .box::-webkit-scrollbar {
-      display: none;
-    }
+    .box::-webkit-scrollbar { display: none; }
 
     .obox h2,
     .box h2 {
@@ -257,9 +225,7 @@
       cursor: pointer;
     }
 
-    .sg {
-      margin-bottom: 16px;
-    }
+    .sg { margin-bottom: 16px; }
 
     .sl {
       display: block;
@@ -301,9 +267,9 @@
 
     .btn.active,
     .ab.active {
-    background: var(--accent) !important;
-    color: #fff !important;
-    border-color: var(--accent) !important;
+      background: var(--accent) !important;
+      color: #fff !important;
+      border-color: var(--accent) !important;
     }
 
     .btn:hover,
@@ -356,9 +322,7 @@
       margin-top: 8px;
     }
 
-    #game {
-      padding: 0;
-    }
+    #game { padding: 0; }
 
     .wrap {
       display: flex;
@@ -395,31 +359,19 @@
       color: #fff;
     }
 
-    .sp {
-      background: var(--accent);
-    }
+    .sp { background: var(--accent); }
+    .tp { background: var(--red); }
 
-    .tp {
-      background: var(--red);
-    }
-
-    .danger {
-      animation: pulse 1s infinite;
-    }
+    .danger { animation: pulse 1s infinite; }
 
     @keyframes pulse {
-      0%,
-      100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.06);
-      }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
     }
 
     .ar {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
 
@@ -471,17 +423,11 @@
       border: none;
     }
 
-    .playing {
-      animation: spin 2s linear infinite;
-    }
+    .playing { animation: spin 2s linear infinite; }
 
     @keyframes spin {
-      from {
-        transform: rotate(0);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+      from { transform: rotate(0); }
+      to { transform: rotate(360deg); }
     }
 
     .meta {
@@ -509,9 +455,7 @@
       gap: 10px;
     }
 
-    .ans input {
-      flex: 1;
-    }
+    .ans input { flex: 1; }
 
     .res {
       min-height: 58px;
@@ -522,13 +466,8 @@
       line-height: 1.6;
     }
 
-    .good {
-      border-color: var(--green) !important;
-    }
-
-    .bad {
-      border-color: var(--red) !important;
-    }
+    .good { border-color: var(--green) !important; }
+    .bad { border-color: var(--red) !important; }
 
     #yt {
       width: 1px;
@@ -557,9 +496,7 @@
       font-size: 13px;
     }
 
-    .alist div:last-child {
-      border-bottom: none;
-    }
+    .alist div:last-child { border-bottom: none; }
 
     .mgr {
       width: min(94vw, 760px);
@@ -695,27 +632,21 @@
       z-index: 60;
     }
 
-    .floatfx.show {
-      animation: floatUp 0.9s ease-out;
-    }
+    .floatfx.show { animation: floatUp 0.9s ease-out; }
 
     @keyframes floatUp {
       0% {
         opacity: 0;
         transform: translateX(-50%) translateY(10px) scale(0.8);
       }
-      20% {
-        opacity: 1;
-      }
+      20% { opacity: 1; }
       100% {
         opacity: 0;
         transform: translateX(-50%) translateY(-35px) scale(1.1);
       }
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     @media (max-width: 640px) {
       .mgr {
@@ -772,12 +703,12 @@
 
         <button class="card b4" onclick="startGame('endless')">
           <h2>♾️ 無限模式</h2>
-          <p>可重複出題，直到時間結束</p>
+          <p>答錯、跳過、超時就結束，也可手動放棄</p>
           <div class="badge">最高分：<span id="hs_endless">0</span></div>
         </button>
       </div>
 
-      <div class="note">請先到右上角設定選擇專輯模式、回合數與作答方式。</div>
+      <div class="note">請先到右上角設定選擇專輯模式、每題秒數與作答方式。</div>
       <div class="foot">Made by weic58 & ChatGPT, 2026.</div>
     </div>
 
@@ -794,6 +725,7 @@
         <div class="ar">
           <button class="act" onclick="replayClip()">▶️ 重播 -1</button>
           <button class="act" onclick="skipQuestion()">⏭️ 跳過 -1</button>
+          <button id="giveUpBtn" class="act hidden" onclick="giveUpEndless()">🏳️ 放棄</button>
         </div>
 
         <div class="panel q" id="question">準備開始</div>
@@ -839,16 +771,8 @@
         <span class="sl">自選專輯</span>
         <div id="albumGrid" class="albumgrid"></div>
         <div class="row" style="justify-content:flex-start;margin-top:10px">
-          <button class="sb" onclick="selectAllAlbums()">全部專輯</button>
-          <button class="sb" onclick="selectRandomAlbum()">隨機一張</button>
-        </div>
-      </div>
-
-      <div class="sg">
-        <span class="sl">亮暗主題</span>
-        <div class="grid2">
-          <button class="btn" data-theme-choice="dark">🌙 暗色</button>
-          <button class="btn" data-theme-choice="light">☀️ 亮色</button>
+          <button class="sb" onclick="selectAllAlbums()">全選</button>
+          <button class="sb" onclick="clearAllAlbums()">全不選</button>
         </div>
       </div>
 
@@ -861,13 +785,13 @@
       </div>
 
       <div class="sg">
-        <span class="sl">回合數（一般/無限）</span>
+        <span class="sl">一般模式回合數</span>
         <input id="roundCountInput" type="number" min="1" max="50" value="10" />
       </div>
 
       <div class="sg">
-        <span class="sl">總秒數</span>
-        <input id="timeLimitInput" type="number" min="10" max="999" value="90" />
+        <span class="sl">每題秒數</span>
+        <input id="timeLimitInput" type="number" min="3" max="120" value="10" />
       </div>
 
       <div class="sg">
@@ -902,11 +826,16 @@
       </div>
 
       <div class="ibox">
-        <div class="inote">支援上傳 CSV 檔案匯入。欄位順序：<code>歌名,youtubeId或網址,前奏秒數,間奏秒數</code>。若秒數留空，會保留原本值。</div>
+        <div class="inote">
+          支援上傳 CSV 檔案匯入。欄位順序：
+          <code>歌名,youtubeId或網址,前奏秒數,間奏秒數</code>。
+          若秒數留空，會保留原本值。
+        </div>
         <div class="frow">
           <input id="csvFileInput" type="file" accept=".csv,text/csv" />
           <button class="sb" onclick="importCsvFile()">匯入檔案</button>
           <button class="sb" onclick="exportCsvData()">匯出目前資料</button>
+          <button class="sb" onclick="exportCsvTemplateDisplayed()">匯出範本（目前顯示）</button>
         </div>
         <div id="csvFileStatus" class="fpill">尚未選擇檔案</div>
       </div>
@@ -941,134 +870,22 @@
 
   <script>
     const albumData = [
-      {
-        album: "Jay",
-        year: 2000,
-        tracks: [
-          "可愛女人", "完美主義", "星晴", "娘子", "鬥牛",
-          "黑色幽默", "伊斯坦堡", "印地安老斑鳩", "龍捲風", "反方向的鐘"
-        ]
-      },
-      {
-        album: "范特西",
-        year: 2001,
-        tracks: [
-          "愛在西元前", "爸 我回來了", "簡單愛", "忍者", "開不了口",
-          "上海 一九四三", "對不起", "威廉古堡", "雙截棍", "安靜"
-        ]
-      },
-      {
-        album: "八度空間",
-        year: 2002,
-        tracks: [
-          "半獸人", "半島鐵盒", "暗號", "龍拳", "火車叨位去",
-          "分裂", "爺爺泡的茶", "回到過去", "米蘭的小鐵匠", "最後的戰役"
-        ]
-      },
-      {
-        album: "葉惠美",
-        year: 2003,
-        tracks: [
-          "以父之名", "懦夫", "晴天", "三年二班", "東風破",
-          "妳聽得到", "同一種調調", "她的睫毛", "愛情懸崖", "梯田", "雙刀"
-        ]
-      },
-      {
-        album: "七里香",
-        year: 2004,
-        tracks: [
-          "我的地盤", "七里香", "藉口", "外婆", "將軍",
-          "擱淺", "亂舞春秋", "困獸之鬥", "園遊會", "止戰之殤"
-        ]
-      },
-      {
-        album: "11月的蕭邦",
-        year: 2005,
-        tracks: [
-          "夜曲", "藍色風暴", "髮如雪", "黑色毛衣", "四面楚歌",
-          "楓", "浪漫手機", "逆鱗", "麥芽糖", "珊瑚海", "飄移", "一路向北"
-        ]
-      },
-      {
-        album: "依然范特西",
-        year: 2006,
-        tracks: [
-          "夜的第七章", "聽媽媽的話", "千里之外", "本草綱目", "退後",
-          "紅模仿", "心雨", "白色風車", "迷迭香", "菊花台"
-        ]
-      },
-      {
-        album: "我很忙",
-        year: 2007,
-        tracks: [
-          "牛仔很忙", "彩虹", "青花瓷", "陽光宅男", "蒲公英的約定",
-          "無雙", "我不配", "扯", "甜甜的", "最長的電影"
-        ]
-      },
-      {
-        album: "魔杰座",
-        year: 2008,
-        tracks: [
-          "龍戰騎士", "給我一首歌的時間", "蛇舞", "花海", "魔術先生",
-          "說好的幸福呢", "蘭亭序", "流浪詩人", "時光機", "喬克叔叔", "稻香"
-        ]
-      },
-      {
-        album: "跨時代",
-        year: 2010,
-        tracks: [
-          "跨時代", "說了再見", "煙花易冷", "免費教學錄影帶", "好久不見",
-          "雨下一整晚", "嘻哈空姐", "我落淚·情緒零碎", "愛的飛行日記", "自導自演", "超人不會飛"
-        ]
-      },
-      {
-        album: "驚嘆號",
-        year: 2011,
-        tracks: [
-          "驚嘆號", "迷魂曲", "Mine Mine", "公主病", "你好嗎",
-          "療傷燒肉粽", "琴傷", "水手怕水", "世界未末日", "皮影戲", "超跑女神"
-        ]
-      },
-      {
-        album: "12新作",
-        year: 2012,
-        tracks: [
-          "四季列車", "手語", "公公偏頭痛", "明明就", "傻笑",
-          "比較大的大提琴", "愛你沒差", "紅塵客棧", "夢想啟動", "大笨鐘", "哪裡都是你", "烏克麗麗"
-        ]
-      },
-      {
-        album: "哎呦，不錯哦",
-        year: 2014,
-        tracks: [
-          "陽明山", "竊愛", "算什麼男人", "天涯過客", "怎麼了",
-          "一口氣全唸對", "我要夏天", "手寫的從前", "鞋子特大號", "聽爸爸的話", "美人魚", "聽見下雨的聲音"
-        ]
-      },
-      {
-        album: "周杰倫的床邊故事",
-        year: 2016,
-        tracks: [
-          "床邊故事", "說走就走", "一點點", "前世情人", "英雄",
-          "不該", "土耳其冰淇淋", "告白氣球", "Now You See Me", "愛情廢柴"
-        ]
-      },
-      {
-        album: "最偉大的作品",
-        year: 2022,
-        tracks: [
-          "Intro", "最偉大的作品", "還在流浪", "說好不哭", "紅顏如霜",
-          "不愛我就拉倒", "Mojito", "錯過的煙火", "等你下課", "粉色海洋", "倒影", "我是如此相信"
-        ]
-      },
-      {
-        album: "太陽之子",
-        year: 2026,
-        tracks: [
-          "太陽之子", "西西里", "那天下雨了", "湘女多情", "誰稀罕",
-          "七月的極光", "愛琴海", "I Do", "聖徒", "女兒殿下", "淘金小鎮", "鄉間的路", "聖誕星"
-        ]
-      }
+      { album: "Jay", year: 2000, tracks: ["可愛女人","完美主義","星晴","娘子","鬥牛","黑色幽默","伊斯坦堡","印地安老斑鳩","龍捲風","反方向的鐘"] },
+      { album: "范特西", year: 2001, tracks: ["愛在西元前","爸 我回來了","簡單愛","忍者","開不了口","上海 一九四三","對不起","威廉古堡","雙截棍","安靜"] },
+      { album: "八度空間", year: 2002, tracks: ["半獸人","半島鐵盒","暗號","龍拳","火車叨位去","分裂","爺爺泡的茶","回到過去","米蘭的小鐵匠","最後的戰役"] },
+      { album: "葉惠美", year: 2003, tracks: ["以父之名","懦夫","晴天","三年二班","東風破","妳聽得到","同一種調調","她的睫毛","愛情懸崖","梯田","雙刀"] },
+      { album: "七里香", year: 2004, tracks: ["我的地盤","七里香","藉口","外婆","將軍","擱淺","亂舞春秋","困獸之鬥","園遊會","止戰之殤"] },
+      { album: "11月的蕭邦", year: 2005, tracks: ["夜曲","藍色風暴","髮如雪","黑色毛衣","四面楚歌","楓","浪漫手機","逆鱗","麥芽糖","珊瑚海","飄移","一路向北"] },
+      { album: "依然范特西", year: 2006, tracks: ["夜的第七章","聽媽媽的話","千里之外","本草綱目","退後","紅模仿","心雨","白色風車","迷迭香","菊花台"] },
+      { album: "我很忙", year: 2007, tracks: ["牛仔很忙","彩虹","青花瓷","陽光宅男","蒲公英的約定","無雙","我不配","扯","甜甜的","最長的電影"] },
+      { album: "魔杰座", year: 2008, tracks: ["龍戰騎士","給我一首歌的時間","蛇舞","花海","魔術先生","說好的幸福呢","蘭亭序","流浪詩人","時光機","喬克叔叔","稻香"] },
+      { album: "跨時代", year: 2010, tracks: ["跨時代","說了再見","煙花易冷","免費教學錄影帶","好久不見","雨下一整晚","嘻哈空姐","我落淚·情緒零碎","愛的飛行日記","自導自演","超人不會飛"] },
+      { album: "驚嘆號", year: 2011, tracks: ["驚嘆號","迷魂曲","Mine Mine","公主病","你好嗎","療傷燒肉粽","琴傷","水手怕水","世界未末日","皮影戲","超跑女神"] },
+      { album: "12新作", year: 2012, tracks: ["四季列車","手語","公公偏頭痛","明明就","傻笑","比較大的大提琴","愛你沒差","紅塵客棧","夢想啟動","大笨鐘","哪裡都是你","烏克麗麗"] },
+      { album: "哎呦，不錯哦", year: 2014, tracks: ["陽明山","竊愛","算什麼男人","天涯過客","怎麼了","一口氣全唸對","我要夏天","手寫的從前","鞋子特大號","聽爸爸的話","美人魚","聽見下雨的聲音"] },
+      { album: "周杰倫的床邊故事", year: 2016, tracks: ["床邊故事","說走就走","一點點","前世情人","英雄","不該","土耳其冰淇淋","告白氣球","Now You See Me","愛情廢柴"] },
+      { album: "最偉大的作品", year: 2022, tracks: ["Intro","最偉大的作品","還在流浪","說好不哭","紅顏如霜","不愛我就拉倒","Mojito","錯過的煙火","等你下課","粉色海洋","倒影","我是如此相信"] },
+      { album: "太陽之子", year: 2026, tracks: ["太陽之子","西西里","那天下雨了","湘女多情","誰稀罕","七月的極光","愛琴海","I Do","聖徒","女兒殿下","淘金小鎮","鄉間的路","聖誕星"] }
     ];
 
     const manualSeeds = {
@@ -1088,10 +905,7 @@
     const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
     const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
     const savedAlbumMode = localStorage.getItem("guess_song_album_mode") || "custom";
-    const highScores = JSON.parse(
-      localStorage.getItem("guess_song_high_scores") ||
-      "{\"intro\":0,\"interlude\":0,\"mixed\":0,\"endless\":0}"
-    );
+    const highScores = JSON.parse(localStorage.getItem("guess_song_high_scores") || "{\"intro\":0,\"interlude\":0,\"mixed\":0,\"endless\":0}");
 
     document.body.setAttribute("data-theme", savedTheme);
 
@@ -1167,10 +981,6 @@
     }
 
     function renderSettingButtons() {
-      document.querySelectorAll("[data-theme-choice]").forEach(b => {
-        b.classList.toggle("active", b.dataset.themeChoice === document.body.getAttribute("data-theme"));
-      });
-
       document.querySelectorAll("[data-answer-mode]").forEach(b => {
         b.classList.toggle("active", b.dataset.answerMode === answerMode);
       });
@@ -1191,11 +1001,15 @@
         b.onclick = () => {
           if (selectedAlbums.has(i.album)) selectedAlbums.delete(i.album);
           else selectedAlbums.add(i.album);
-          if (!selectedAlbums.size) selectedAlbums.add(i.album);
           renderAlbumGrid();
         };
         $("albumGrid").appendChild(b);
       });
+    }
+
+    function clearAllAlbums() {
+      selectedAlbums.clear();
+      renderAlbumGrid();
     }
 
     function extractYouTubeId(input) {
@@ -1227,14 +1041,18 @@
       localStorage.setItem("guess_song_links", JSON.stringify(m));
     }
 
-    function renderManageList() {
+    function getManagerFilteredRows() {
       const search = ($("managerSearchInput").value || "").trim().toLowerCase();
       const albumKeyword = ($("managerAlbumFilter").value || "").trim().toLowerCase();
 
-      const rows = songLibrary.filter(s => {
+      return songLibrary.filter(s => {
         return (!search || s.title.toLowerCase().includes(search)) &&
                (!albumKeyword || s.album.toLowerCase().includes(albumKeyword));
       });
+    }
+
+    function renderManageList() {
+      const rows = getManagerFilteredRows();
 
       if (!rows.length) {
         $("manageBox").innerHTML = "<div class='empty'>沒有符合條件的歌曲</div>";
@@ -1331,12 +1149,6 @@
       renderAlbumGrid();
     }
 
-    function selectRandomAlbum() {
-      const pick = albumData[Math.floor(Math.random() * albumData.length)].album;
-      selectedAlbums = new Set([pick]);
-      renderAlbumGrid();
-    }
-
     function shuffle(arr) {
       const c = [...arr];
       for (let i = c.length - 1; i > 0; i--) {
@@ -1382,16 +1194,8 @@
 
     function buildQuestionQueue(pool, isEndless) {
       const n = Math.max(1, Number($("roundCountInput").value || 10));
-
-      if (!isEndless) {
-        return shuffle(pool).slice(0, Math.min(n, pool.length));
-      }
-
-      const q = [];
-      for (let i = 0; i < n; i++) {
-        q.push(pool[Math.floor(Math.random() * pool.length)]);
-      }
-      return q;
+      if (isEndless) return [];
+      return shuffle(pool).slice(0, Math.min(n, pool.length));
     }
 
     function startGame(mode) {
@@ -1413,6 +1217,7 @@
       $("score").textContent = score;
       $("result").className = "res hidden";
       $("result").innerHTML = "";
+      $("giveUpBtn").classList.toggle("hidden", mode !== "endless");
 
       $("modeDisplay").textContent =
         mode === "intro"
@@ -1424,7 +1229,6 @@
           : "♾️ 無限模式";
 
       setActiveScreen("game");
-      startTimer();
       loadQuestion();
     }
 
@@ -1435,12 +1239,14 @@
     }
 
     function quitToHome() {
-      stopTimer();
-      stopPlayback();
-      isPaused = false;
-      $("pauseOverlay").classList.remove("show");
-      $("gameOver").classList.remove("show");
-      setActiveScreen("home");
+        stopTimer();
+        stopPlayback();
+        isPaused = false;
+        answered = false;
+        currentSong = null;
+        $("pauseOverlay").classList.remove("show");
+        $("gameOver").classList.remove("show");
+        setActiveScreen("home");
     }
 
     function pickClipType() {
@@ -1450,12 +1256,19 @@
     }
 
     function loadQuestion() {
-      if (currentIndex >= gameQueue.length) {
+      const pool = getFilteredSongsForCurrentGame();
+
+      if (gameMode !== "endless" && currentIndex >= gameQueue.length) {
         endGame();
         return;
       }
 
-      currentSong = gameQueue[currentIndex];
+      if (gameMode === "endless") {
+        currentSong = pool[Math.floor(Math.random() * pool.length)];
+      } else {
+        currentSong = gameQueue[currentIndex];
+      }
+
       currentClipType = pickClipType();
       answered = false;
 
@@ -1464,19 +1277,18 @@
           ? "請聽前奏片段，猜出歌名。"
           : "請聽間奏片段，猜出歌名。";
 
-      const roundLabel =
-        (gameMode === "endless" ? "第 " : "第 ") +
-        (currentIndex + 1) +
-        " / " +
-        gameQueue.length +
-        (gameMode === "endless" ? " 回合" : " 題");
+      const metaLabel =
+        gameMode === "endless"
+          ? `連續答對 ${score} 題`
+          : `第 ${currentIndex + 1} / ${gameQueue.length} 題`;
 
       const albumLabel = albumMode === "custom" ? currentSong.album : "隨機專輯";
-      $("meta").textContent = `${albumLabel} · ${roundLabel}`;
+      $("meta").textContent = `${albumLabel} · ${metaLabel}`;
 
       $("answerInput").value = "";
       renderAnswerArea();
-      replayClip();
+      startQuestionTimer();
+      autoPlayCurrentClip();
     }
 
     function renderAnswerArea() {
@@ -1552,36 +1364,53 @@
       if (answered || isPaused) return;
 
       answered = true;
+      stopTimer();
       stopPlayback();
 
       if (correct) {
         applyScore(1);
+        usedAnswers.push({
+          song: currentSong,
+          clipType: currentClipType,
+          correct: true
+        });
+
+        setTimeout(() => {
+          if (gameMode !== "endless") currentIndex += 1;
+          loadQuestion();
+        }, 1100);
+        return;
       }
 
       usedAnswers.push({
         song: currentSong,
         clipType: currentClipType,
-        correct
+        correct: false
       });
 
       const box = $("result");
-      box.className = "res " + (correct ? "good" : "bad");
+      box.className = "res bad";
       box.innerHTML =
-        `${correct ? "✅ 答對了！" : "❌ 答錯了。"}<br>` +
+        `❌ 答錯了。<br>` +
         `<b>答案：</b>${currentSong.title}<br>` +
         `<span style="color:var(--muted);font-size:13px;">` +
         `${albumMode === "custom" ? currentSong.album : "隨機專輯"} · ${currentSong.year}` +
         `</span>`;
 
-      setTimeout(() => {
-        currentIndex += 1;
-        loadQuestion();
-      }, 1100);
+      if (gameMode === "endless") {
+        setTimeout(() => endGame(), 1100);
+      } else {
+        setTimeout(() => {
+          currentIndex += 1;
+          loadQuestion();
+        }, 1100);
+      }
     }
 
     function skipQuestion() {
       if (answered) return;
 
+      stopTimer();
       stopPlayback();
       answered = true;
       applyScore(-1);
@@ -1597,15 +1426,26 @@
       box.className = "res bad";
       box.innerHTML = `⏭️ 已跳過（-1）<br><b>答案：</b>${currentSong.title}`;
 
-      setTimeout(() => {
-        currentIndex += 1;
-        loadQuestion();
-      }, 900);
+      if (gameMode === "endless") {
+        setTimeout(() => endGame(), 900);
+      } else {
+        setTimeout(() => {
+          currentIndex += 1;
+          loadQuestion();
+        }, 900);
+      }
     }
 
-    function startTimer() {
+    function giveUpEndless() {
+      if (gameMode !== "endless") return;
       stopTimer();
-      timeLeft = Math.max(10, Number($("timeLimitInput").value || 90));
+      stopPlayback();
+      endGame();
+    }
+
+    function startQuestionTimer() {
+      stopTimer();
+      timeLeft = Math.max(3, Number($("timeLimitInput").value || 10));
       $("time").textContent = timeLeft;
       updateTimeDanger();
 
@@ -1617,13 +1457,30 @@
         updateTimeDanger();
 
         if (timeLeft <= 0) {
-          endGame();
+          handleTimeUp();
         }
       }, 1000);
     }
 
     function updateTimeDanger() {
       $("timePill").classList.toggle("danger", timeLeft <= 3);
+    }
+
+    function handleTimeUp() {
+      stopTimer();
+
+      if (gameMode === "endless") {
+        usedAnswers.push({
+          song: currentSong,
+          clipType: currentClipType,
+          correct: false,
+          timeout: true
+        });
+        endGame();
+        return;
+      }
+
+      skipQuestion();
     }
 
     function stopTimer() {
@@ -1636,17 +1493,16 @@
       saveHighScore();
 
       $("finalScore").textContent = score;
-      $("finalTotal").textContent = gameQueue.length;
+      $("finalTotal").textContent = gameMode === "endless" ? usedAnswers.length : gameQueue.length;
       $("endTitle").textContent = "遊戲結束！";
 
       const wrap = $("answersWrap");
       wrap.classList.remove("hidden");
       wrap.innerHTML = usedAnswers.length
-        ? usedAnswers
-            .map((it, i) => {
-              return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${it.correct ? "答對" : it.skipped ? "跳過" : "答錯"}</div>`;
-            })
-            .join("")
+        ? usedAnswers.map((it, i) => {
+            const status = it.correct ? "答對" : it.skipped ? "跳過" : it.timeout ? "超時" : "答錯";
+            return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${status}</div>`;
+          }).join("")
         : "<div>本局沒有題目紀錄</div>";
 
       $("gameOver").classList.add("show");
@@ -1695,9 +1551,7 @@
         if (isMuted && player.mute) player.mute();
 
         clipStopper = setTimeout(() => {
-          try {
-            player.stopVideo();
-          } catch (e) {}
+          try { player.stopVideo(); } catch (e) {}
           $("disc").classList.remove("playing");
         }, (length + 0.35) * 1000);
       } catch (e) {
@@ -1706,9 +1560,14 @@
     }
 
     function replayClip() {
-      if (!currentSong || answered) return;
-      applyScore(-1);
-      playClipForSong(currentSong, currentClipType);
+        if (!currentSong || answered) return;
+        applyScore(-1);
+        playClipForSong(currentSong, currentClipType);
+    }
+
+    function autoPlayCurrentClip() {
+        if (!currentSong || answered) return;
+        playClipForSong(currentSong, currentClipType);
     }
 
     function previewSongClip(title, clipType) {
@@ -1831,13 +1690,41 @@
         : "目前沒有可匯出的資料";
     }
 
+    function exportCsvTemplateDisplayed() {
+        const rows = getManagerFilteredRows();
+
+        const csvRows = ["歌名,youtubeId或網址,前奏秒數,間奏秒數"];
+
+        rows.forEach(song => {
+            const youtubeId = song.youtubeId || "";
+            const intro = song.introStart ?? "";
+            const interlude = song.interludeStart ?? "";
+            csvRows.push(`${song.title},${youtubeId},${intro},${interlude}`);
+        });
+
+        const csv = csvRows.join("\n");
+        const blob = new Blob(["\ufeff" + csv], {
+            type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "guess-song-template-displayed.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        $("csvFileStatus").textContent = rows.length
+            ? `已匯出目前顯示的 ${rows.length} 首（含現有資料）`
+            : "目前沒有可匯出的顯示內容";
+    }
+
     $("settingsBtn").addEventListener("click", openSettings);
 
     $("themeBtn").addEventListener("click", () => {
       const next = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
       document.body.setAttribute("data-theme", next);
       localStorage.setItem("guess_song_theme", next);
-      renderSettingButtons();
     });
 
     $("muteBtn").addEventListener("click", e => {
@@ -1865,15 +1752,6 @@
     $("csvFileInput").addEventListener("change", () => {
       const file = $("csvFileInput").files?.[0];
       $("csvFileStatus").textContent = file ? `已選擇：${file.name}` : "尚未選擇檔案";
-    });
-
-    document.querySelectorAll("[data-theme-choice]").forEach(b => {
-      b.addEventListener("click", () => {
-        const theme = b.dataset.themeChoice;
-        document.body.setAttribute("data-theme", theme);
-        localStorage.setItem("guess_song_theme", theme);
-        renderSettingButtons();
-      });
     });
 
     document.querySelectorAll("[data-answer-mode]").forEach(b => {
