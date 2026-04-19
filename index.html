@@ -945,7 +945,7 @@
     const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
     const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
     const savedAlbumMode = localStorage.getItem("guess_song_album_mode") || "custom";
-    const highScores = JSON.parse(
+    const rawHighScores = JSON.parse(
       localStorage.getItem("guess_song_high_scores") ||
       JSON.stringify({
         intro: { score: 0, time: null },
@@ -954,6 +954,26 @@
         endless: { score: 0, time: null }
       })
     );
+
+    function normalizeRecord(v) {
+      if (typeof v === "number") {
+        return { score: v, time: null };
+      }
+      if (v && typeof v === "object") {
+        return {
+          score: Number(v.score || 0),
+          time: v.time == null ? null : Number(v.time)
+        };
+      }
+      return { score: 0, time: null };
+    }
+
+    const highScores = {
+      intro: normalizeRecord(rawHighScores.intro),
+      interlude: normalizeRecord(rawHighScores.interlude),
+      mixed: normalizeRecord(rawHighScores.mixed),
+      endless: normalizeRecord(rawHighScores.endless)
+    };
 
     document.body.setAttribute("data-theme", savedTheme);
 
@@ -1077,7 +1097,7 @@
 
     function updateHighScoreUI() {
       ["intro", "interlude", "mixed", "endless"].forEach(k => {
-        const record = highScores[k] || { score: 0, time: null };
+        const record = normalizeRecord(highScores[k]);
 
         if (!record.score) {
           $("hs_" + k).textContent = "0";
@@ -1091,7 +1111,7 @@
 
     function saveHighScore() {
       const currentTime = Number(totalAnswerTime || 0);
-      const oldRecord = highScores[gameMode] || { score: 0, time: null };
+      const oldRecord = normalizeRecord(highScores[gameMode]);
 
       const shouldUpdate =
         score > oldRecord.score ||
