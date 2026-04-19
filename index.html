@@ -910,6 +910,7 @@
     <div class="obox">
       <h2 id="endTitle">遊戲結束！</h2>
       <p>總分：<b id="finalScore">0</b> / <span id="finalTotal">0</span></p>
+      <p>總作答時間：<b id="finalTime">0.0</b> 秒</p>
       <div id="answersWrap" class="alist hidden"></div>
       <div class="row">
         <button class="pb" onclick="restartCurrentGame()">再來一局</button>
@@ -965,6 +966,8 @@
     let currentClipType = "intro";
     let clipStopper = null;
     let currentClipOffset = 0;
+    let questionStartTime = 0;
+    let totalAnswerTime = 0;
     let player = null;
     let ytReady = false;
     let usedAnswers = [];
@@ -1318,6 +1321,7 @@
 
       gameMode = mode;
       score = 0;
+      totalAnswerTime = 0;
       currentIndex = 0;
       answered = false;
       usedAnswers = [];
@@ -1344,6 +1348,7 @@
     function restartCurrentGame() {
       stopTimer();
       stopPlayback();
+      $("gameOver").classList.remove("show");
       $("adPlayerWrap").classList.add("hidden");
       adModeOpen = false;
       adUsedThisQuestion = false;
@@ -1408,6 +1413,7 @@
 
       $("answerInput").value = "";
       renderAnswerArea();
+      questionStartTime = performance.now();
       startQuestionTimer();
       autoPlayCurrentClip();
     }
@@ -1498,6 +1504,9 @@
       stopTimer();
       stopPlayback();
 
+      const elapsedSec = Math.max(0, (performance.now() - questionStartTime) / 1000);
+      totalAnswerTime += elapsedSec;
+
       if (correct) {
         if (!adUsedThisQuestion) {
           applyScore(1);
@@ -1507,7 +1516,8 @@
           song: currentSong,
           clipType: currentClipType,
           correct: true,
-          noScore: adUsedThisQuestion
+          noScore: adUsedThisQuestion,
+          elapsedSec
         });
 
         setTimeout(() => {
@@ -1517,10 +1527,13 @@
         return;
       }
 
+      applyScore(-1);
+
       usedAnswers.push({
         song: currentSong,
         clipType: currentClipType,
-        correct: false
+        correct: false,
+        elapsedSec
       });
 
       const box = $("result");
@@ -1529,7 +1542,7 @@
         `❌ 答錯了。<br>` +
         `<b>答案：</b>${currentSong.title}<br>` +
         `<span style="color:var(--muted);font-size:13px;">` +
-        `${albumMode === "custom" ? currentSong.album : "隨機專輯"} · ${currentSong.year}` +
+        `專輯：${currentSong.album || "未知"} · ${currentSong.year || ""}` +
         `</span>`;
 
       if (gameMode === "endless") {
@@ -1548,18 +1561,28 @@
       stopTimer();
       stopPlayback();
       answered = true;
+
+      const elapsedSec = Math.max(0, (performance.now() - questionStartTime) / 1000);
+      totalAnswerTime += elapsedSec;
+
       applyScore(-1);
 
       usedAnswers.push({
         song: currentSong,
         clipType: currentClipType,
         correct: false,
-        skipped: true
+        skipped: true,
+        elapsedSec
       });
 
       const box = $("result");
       box.className = "res bad";
-      box.innerHTML = `⏭️ 已跳過（-1）<br><b>答案：</b>${currentSong.title}`;
+      box.innerHTML =
+        `⏭️ 已跳過（-1）<br>` +
+        `<b>答案：</b>${currentSong.title}<br>` +
+        `<span style="color:var(--muted);font-size:13px;">` +
+        `專輯：${currentSong.album || "未知"} · ${currentSong.year || ""}` +
+        `</span>`;
 
       if (gameMode === "endless") {
         setTimeout(() => endGame(), 900);
@@ -1596,7 +1619,18 @@
       $("adPlayerWrap").classList.add("hidden");
 
       if (!answered && currentSong) {
-        startQuestionTimer();
+        stopTimer();
+        timer = setInterval(() => {
+          if (isPaused) return;
+
+          timeLeft -= 1;
+          $("time").textContent = Math.max(0, timeLeft);
+          updateTimeDanger();
+
+          if (timeLeft <= 0) {
+            handleTimeUp();
+          }
+        }, 1000);
       }
     }
 
@@ -1627,11 +1661,16 @@
       stopTimer();
 
       if (gameMode === "endless") {
+        const elapsedSec = Math.max(0, (performance.now() - questionStartTime) / 1000);
+        totalAnswerTime += elapsedSec;
+
+        applyScore(-1);
         usedAnswers.push({
           song: currentSong,
           clipType: currentClipType,
           correct: false,
-          timeout: true
+          timeout: true,
+          elapsedSec
         });
         endGame();
         return;
@@ -1651,6 +1690,7 @@
 
       $("finalScore").textContent = score;
       $("finalTotal").textContent = gameMode === "endless" ? usedAnswers.length : gameQueue.length;
+      $("finalTime").textContent = totalAnswerTime.toFixed(1);
       $("endTitle").textContent = "遊戲結束！";
 
       const wrap = $("answersWrap");
@@ -1664,7 +1704,7 @@
               : it.timeout
               ? "超時"
               : "答錯";
-            return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${status}</div>`;
+            return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${status} ｜ ${Number(it.elapsedSec || 0).toFixed(1)} 秒</div>`;
           }).join("")
         : "<div>本局沒有題目紀錄</div>";
 
