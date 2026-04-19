@@ -777,7 +777,7 @@
           <div class="pz">
             <button id="disc" class="disc" onclick="replayClip()">▶</button>
           </div>
-          <div class="meta" id="meta">點中間圓盤可重播片段</div>
+          <div class="meta" id="meta">點中間圓盤可延長播放(扣1分)</div>
         </div>
 
         <div class="panel">
@@ -964,6 +964,7 @@
     let answered = false;
     let currentClipType = "intro";
     let clipStopper = null;
+    let currentClipOffset = 0;
     let player = null;
     let ytReady = false;
     let usedAnswers = [];
@@ -1388,6 +1389,7 @@
 
       currentClipType = pickClipType();
       answered = false;
+      currentClipOffset = 0;
       adUsedThisQuestion = false;
       $("adPlayerWrap").classList.add("hidden");
       adModeOpen = false;
@@ -1691,7 +1693,7 @@
       } catch (e) {}
     }
 
-    function playClipForSong(song, clipType) {
+    function playClipForSong(song, clipType, offset = 0) {
       if (!song || !song.youtubeId || isPaused || !ytReady || !player || !player.loadVideoById) {
         return;
       }
@@ -1699,12 +1701,13 @@
       clearTimeout(clipStopper);
       $("disc").classList.remove("playing");
 
-      const startAt =
+      const baseStart =
         clipType === "intro"
           ? Number(song.introStart || 0)
           : Number(song.interludeStart || 0);
 
       const length = Math.max(2, Number($("clipLengthInput").value || 6));
+      const startAt = baseStart + offset;
 
       try {
         player.loadVideoById({
@@ -1728,47 +1731,20 @@
     }
 
     function replayClip() {
-      if (!currentSong || answered) return;
+      if (!currentSong || answered || isPaused) return;
 
       applyScore(-1);
 
-      const startAt =
-        currentClipType === "intro"
-          ? Number(currentSong.introStart || 0)
-          : Number(currentSong.interludeStart || 0);
-
       const length = Math.max(2, Number($("clipLengthInput").value || 6));
+      currentClipOffset += length;
 
-      clearTimeout(clipStopper);
-
-      try {
-        if (player && player.getVideoData && player.getVideoData().video_id === currentSong.youtubeId) {
-          if (player.seekTo) player.seekTo(startAt, true);
-          if (player.playVideo) player.playVideo();
-        } else {
-          playClipForSong(currentSong, currentClipType);
-          return;
-        }
-
-        if (!isMuted && player.unMute) player.unMute();
-        if (player.setVolume) player.setVolume(100);
-        if (isMuted && player.mute) player.mute();
-
-        clipStopper = setTimeout(() => {
-          try {
-            if (player.pauseVideo) player.pauseVideo();
-          } catch (e) {}
-          $("disc").classList.remove("playing");
-        }, (length + 0.35) * 1000);
-      } catch (e) {
-        console.error(e);
-        playClipForSong(currentSong, currentClipType);
-      }
+      playClipForSong(currentSong, currentClipType, currentClipOffset);
     }
 
     function autoPlayCurrentClip() {
       if (!currentSong || answered) return;
-      playClipForSong(currentSong, currentClipType);
+      currentClipOffset = 0;
+      playClipForSong(currentSong, currentClipType, currentClipOffset);
     }
 
     function previewSongClip(title, clipType) {
