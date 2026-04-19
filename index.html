@@ -1828,6 +1828,11 @@
 
       applyScore(-1);
 
+      const extraTime = Math.max(3, Number($("timeLimitInput").value || 10));
+      timeLeft = extraTime;
+      $("time").textContent = timeLeft;
+      updateTimeDanger();
+
       const length = Math.max(2, Number($("clipLengthInput").value || 6));
       currentClipOffset += length;
 
