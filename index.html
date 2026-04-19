@@ -1402,8 +1402,7 @@
           ? `連續答對 ${score} 題`
           : `第 ${currentIndex + 1} / ${gameQueue.length} 題`;
 
-      const albumLabel = albumMode === "custom" ? currentSong.album : "隨機專輯";
-      $("meta").textContent = `${albumLabel} · ${metaLabel}`;
+      $("meta").textContent = metaLabel;
 
       $("answerInput").value = "";
       renderAnswerArea();
