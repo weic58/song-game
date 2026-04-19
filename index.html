@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>猜歌王</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #121933;
+      --card: rgba(21, 28, 54, 0.92);
+      --card2: rgba(28, 37, 70, 0.94);
+      --text: #f5f7ff;
+      --muted: #afbbdd;
+      --border: rgba(255,255,255,0.09);
+      --primary: #7c9cff;
+      --primary-2: #a78bfa;
+      --success: #4ade80;
+      --danger: #ff7a90;
+      --warn: #ffd166;
+      --shadow: 0 18px 40px rgba(0,0,0,0.28);
+      --radius: 22px;
+    }
+
+    body.light {
+      --bg: #eef3ff;
+      --bg2: #f8fbff;
+      --card: rgba(255,255,255,0.95);
+      --card2: rgba(245,248,255,0.98);
+      --text: #15203b;
+      --muted: #5f6d92;
+      --border: rgba(20,30,60,0.08);
+      --primary: #516dff;
+      --primary-2: #8d63ff;
+      --success: #1fb86a;
+      --danger: #f05672;
+      --warn: #d89d0d;
+      --shadow: 0 18px 40px rgba(61,84,150,0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,156,255,.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(167,139,250,.16), transparent 28%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 18px 16px 100px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .title {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .theme-btn, .icon-btn, .chip, button, select, input {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .theme-btn, .icon-btn, button, .chip { cursor: pointer; transition: .16s ease; }
+    .theme-btn:hover, .icon-btn:hover, button:hover, .chip:hover { transform: translateY(-1px); }
+
+    .theme-btn {
+      background: var(--card);
+      color: var(--text);
+      padding: 10px 14px;
+      min-width: 84px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .subnote {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .stat .k { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .stat .v { font-size: 22px; font-weight: 900; }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .mode-btn {
+      background: var(--card2);
+      color: var(--text);
+      padding: 14px;
+      min-height: 88px;
+      text-align: left;
+    }
+
+    .mode-btn.active {
+      outline: 2px solid rgba(124,156,255,.55);
+      background: linear-gradient(180deg, rgba(124,156,255,.18), rgba(124,156,255,.08));
+    }
+
+    .mode-name { display: block; font-weight: 800; margin-bottom: 6px; }
+    .mode-desc { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      outline: none;
+      background: var(--card2);
+      color: var(--text);
+    }
+
+    .album-scroll, .quick-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .album-scroll::-webkit-scrollbar, .quick-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      white-space: nowrap;
+      padding: 10px 13px;
+      background: var(--card2);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .action-row, .audio-row, .answer-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button.primary, button.secondary, button.success, button.ghost {
+      min-height: 46px;
+      padding: 11px 16px;
+      font-weight: 800;
+      color: var(--text);
+      background: var(--card2);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      border: none;
+    }
+
+    button.success {
+      background: linear-gradient(135deg, #22c55e, #34d399);
+      color: #082616;
+      border: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .question-box, .result-box, .library-box, .yt-box {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .question-box { font-size: 15px; line-height: 1.7; }
+    .result-box.good { border-color: rgba(34,197,94,.35); }
+    .result-box.bad { border-color: rgba(240,86,114,.35); }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .option-btn {
+      min-height: 62px;
+      padding: 14px;
+      background: var(--card2);
+      color: var(--text);
+      text-align: left;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .answer-row input { flex: 1; min-width: 180px; }
+
+    .hidden { display: none !important; }
+
+    .library-box { max-height: 280px; overflow: auto; }
+    .song-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 11px 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    .song-item b { display: block; font-size: 14px; margin-bottom: 4px; }
+    .song-meta { font-size: 12px; color: var(--muted); line-height: 1.45; }
+    .song-badge {
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+    }
+
+    .manage-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .manage-list {
+      max-height: 320px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .manage-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .manage-item h4 { margin: 0 0 8px; font-size: 14px; }
+    .tiny { font-size: 12px; color: var(--muted); }
+    .inline-row { display: flex; gap: 8px; margin-top: 8px; }
+    .inline-row input { flex: 1; }
+    .small-btn { min-height: 40px; padding: 9px 12px; font-weight: 800; }
+
+    .footer-safe {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 420px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .mode-grid, .form-grid, .options { grid-template-columns: 1fr; }
+      .title { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div>
+        <h1 class="title">🎵 Jay 猜歌王</h1>
+        <div class="subtitle">手機風格猜歌遊戲：前奏猜、間奏猜、選項猜、打字猜，支援亮／暗主題、按專輯出題。</div>
+      </div>
+      <button class="theme-btn" id="themeBtn">🌙 暗色</button>
+    </div>
+
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="k">模式</div><div class="v" id="modeLabel">選項前奏</div></div>
+        <div class="stat"><div class="k">題號</div><div class="v" id="qLabel">0/0</div></div>
+        <div class="stat"><div class="k">分數</div><div class="v" id="scoreLabel">0</div></div>
+        <div class="stat"><div class="k">倒數</div><div class="v" id="timerLabel">--</div></div>
+      </div>
+
+      <div class="section-head">
+        <h2 class="section-title">🎮 模式選擇</h2>
+        <div class="subnote">可依前奏／間奏與作答方式切換</div>
+      </div>
+      <div class="mode-grid" id="modeGrid"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head">
+        <h2 class="section-title">💿 專輯範圍</h2>
+        <div class="subnote" id="albumCountNote">全部歌曲</div>
+      </div>
+      <div class="album-scroll" id="albumChips"></div>
+
+      <div class="section-head" style="margin-top:14px;">
+        <h2 class="section-title">⚙️ 遊戲設定</h2>
+        <div class="subnote">可選每題秒數、題數與播放長度</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>每題秒數</label>
+          <input id="timeLimit" type="number" min="5" max="60" value="15" />
+        </div>
+        <div class="field">
+          <label>題目數量</label>
+          <input id="questionCount" type="number" min="1" max="50" value="10" />
+        </div>
+        <div class="field">
+          <label>片段長度（秒）</label>
+          <input id="clipLength" type="number" min="2" max="20" value="6" />
+        </div>
+        <div class="field">
+          <label>出題條件</label>
+          <select id="availabilityFilter">
+            <option value="all">全部歌曲</option>
+            <option value="ready">只出已綁定 YouTube ID 的歌</option>
+            <option value="missing">只看尚未綁定 ID 的歌</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quick-scroll" style="margin-top:12px;">
+        <button class="chip" id="allAlbumsBtn">全部專輯</button>
+        <button class="chip" id="randomAlbumBtn">隨機一張專輯</button>
+        <button class="chip" id="toggleManageBtn">管理 YouTube 連結</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head">
+        <h2 class="section-title">▶️ 開始遊戲</h2>
+        <div class="subnote">先播片段，再答題</div>
+      </div>
+
+      <div class="audio-row" style="margin-bottom:12px;">
+        <button class="success" id="playBtn">▶ 播放片段</button>
+        <span class="pill" id="clipTypePill">片段：前奏</span>
+        <span class="pill" id="readyCountPill">已綁定：0</span>
+      </div>
+
+      <div class="action-row" style="margin-bottom:12px;">
+        <button class="primary" id="startBtn">開始遊戲</button>
+        <button class="secondary" id="nextBtn">下一題</button>
+        <button class="secondary" id="replayBtn">重播</button>
+        <button class="secondary" id="showAnswerBtn">揭曉答案</button>
+      </div>
+
+      <div class="question-box" id="questionText">先選專輯與模式，再按「開始遊戲」。</div>
+
+      <div id="playerWrap" class="hidden" style="margin-top:12px;">
+        <div id="ytPlayer"></div>
+      </div>
+
+      <div class="options hidden" id="optionsBox" style="margin-top:12px;"></div>
+
+      <div class="answer-row hidden" id="typingBox" style="margin-top:12px;">
+        <input id="answerInput" type="text" placeholder="輸入歌名，例如：晴天" />
+        <button class="primary" id="submitTextBtn">送出</button>
+      </div>
+
+      <div class="result-box hidden" id="resultBox" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="panel hidden" id="managePanel">
+      <div class="section-head">
+        <h2 class="section-title">🔗 管理 YouTube / YouTube Music 連結</h2>
+        <div class="subnote">貼上歌曲網址即可自動抓取 ID 並存在瀏覽器</div>
+      </div>
+      <div class="yt-box" style="margin-bottom:12px;">
+        <div class="tiny">支援一般 YouTube 網址、youtu.be 短網址；YouTube Music 常會導到 YouTube 影片或專輯頁，但不是每首都能穩定轉成單曲影片 ID。</div>
+      </div>
+      <div class="manage-list" id="manageList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head">
+        <h2 class="section-title">📚 題庫總覽</h2>
+        <div class="subnote">依專輯建立完整曲目資料</div>
+      </div>
+      <div class="library-box" id="songList"></div>
+      <div class="footer-safe">⚠️ 這個版本不會替你下載歌曲。它只會播放你已綁定的 YouTube 影片片段。未綁定 ID 的歌曲可先保留在題庫中，之後再逐首補連結。</div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const albumData = [
+      { album: 'Jay', year: 2000, tracks: ['可愛女人','完美主義','星晴','娘子','鬥牛','黑色幽默','伊斯坦堡','印地安老斑鳩','龍捲風','反方向的鐘'] },
+      { album: '范特西', year: 2001, tracks: ['愛在西元前','爸 我回來了','簡單愛','忍者','開不了口','上海 一九四三','對不起','威廉古堡','雙截棍','安靜'] },
+      { album: '八度空間', year: 2002, tracks: ['半獸人','半島鐵盒','暗號','龍拳','火車叨位去','分裂','爺爺泡的茶','回到過去','米蘭的小鐵匠','最後的戰役'] },
+      { album: '葉惠美', year: 2003, tracks: ['以父之名','懦夫','晴天','三年二班','東風破','妳聽得到','同一種調調','她的睫毛','愛情懸崖','梯田','雙刀'] },
+      { album: '七里香', year: 2004, tracks: ['我的地盤','七里香','藉口','外婆','將軍','擱淺','亂舞春秋','困獸之鬥','園遊會','止戰之殤'] },
+      { album: '11月的蕭邦', year: 2005, tracks: ['夜曲','藍色風暴','髮如雪','黑色毛衣','四面楚歌','楓','浪漫手機','逆鱗','麥芽糖','珊瑚海','飄移','一路向北'] },
+      { album: '依然范特西', year: 2006, tracks: ['夜的第七章','聽媽媽的話','千里之外','本草綱目','退後','紅模仿','心雨','白色風車','迷迭香','菊花台'] },
+      { album: '我很忙', year: 2007, tracks: ['牛仔很忙','彩虹','青花瓷','陽光宅男','蒲公英的約定','無雙','我不配','扯','甜甜的','最長的電影'] },
+      { album: '魔杰座', year: 2008, tracks: ['龍戰騎士','給我一首歌的時間','蛇舞','花海','魔術先生','說好的幸福呢','蘭亭序','流浪詩人','時光機','喬克叔叔','稻香'] },
+      { album: '跨時代', year: 2010, tracks: ['跨時代','說了再見','煙花易冷','免費教學錄影帶','好久不見','雨下一整晚','嘻哈空姐','我落淚·情緒零碎','愛的飛行日記','自導自演','超人不會飛'] },
+      { album: '驚嘆號', year: 2011, tracks: ['驚嘆號','迷魂曲','Mine Mine','公主病','你好嗎','療傷燒肉粽','琴傷','水手怕水','世界未末日','皮影戲','超跑女神'] },
+      { album: '12新作', year: 2012, tracks: ['四季列車','手語','公公偏頭痛','明明就','傻笑','比較大的大提琴','愛你沒差','紅塵客棧','夢想啟動','大笨鐘','哪裡都是你','烏克麗麗'] },
+      { album: '哎呦，不錯哦', year: 2014, tracks: ['陽明山','竊愛','算什麼男人','天涯過客','怎麼了','一口氣全唸對','我要夏天','手寫的從前','鞋子特大號','聽爸爸的話','美人魚','聽見下雨的聲音'] },
+      { album: '周杰倫的床邊故事', year: 2016, tracks: ['床邊故事','說走就走','一點點','前世情人','英雄','不該','土耳其冰淇淋','告白氣球','Now You See Me','愛情廢柴'] },
+      { album: '最偉大的作品', year: 2022, tracks: ['Intro','最偉大的作品','還在流浪','說好不哭','紅顏如霜','不愛我就拉倒','Mojito','錯過的煙火','等你下課','粉色海洋','倒影','我是如此相信'] },
+      { album: '太陽之子', year: 2026, tracks: ['太陽之子','西西里','那天下雨了','湘女多情','誰稀罕','七月的極光','愛琴海','I Do','聖徒','女兒殿下','淘金小鎮','鄉間的路','聖誕星'] }
+    ];
+
+    const manualSeeds = {
+      '晴天': 'DYptgVvkVLQ',
+      '七里香': 'Bbp9ZaJD_eA',
+      '稻香': 'sHD_z90ZKV0',
+      '夜曲': '6Q0Pd53mojY',
+      '青花瓷': 'Z8Mqw0b9ADs',
+      '不能說的祕密': 'uIWypArI73w',
+      '聽媽媽的話': '_B8RaLCNUZw',
+      '告白氣球': 'bu7nU9Mhpyo'
+    };
+
+    const introDefaults = {
+      '晴天': 0, '七里香': 0, '稻香': 0, '夜曲': 0, '青花瓷': 0, '聽媽媽的話': 0, '告白氣球': 0,
+      '不能說的祕密': 0, '簡單愛': 0, '龍捲風': 0, '安靜': 0, '東風破': 0, '擱淺': 0, '楓': 0,
+      '彩虹': 0, '蒲公英的約定': 0, '說好的幸福呢': 0, '煙花易冷': 0, '明明就': 0, '手寫的從前': 0,
+      '最偉大的作品': 0, 'Mojito': 0, '等你下課': 0
+    };
+
+    const interludeDefaults = {
+      '晴天': 72, '七里香': 88, '稻香': 64, '夜曲': 79, '青花瓷': 70, '告白氣球': 53, '聽媽媽的話': 66,
+      '簡單愛': 56, '龍捲風': 80, '安靜': 69, '東風破': 61, '擱淺': 75, '楓': 68, '彩虹': 52,
+      '蒲公英的約定': 57, '說好的幸福呢': 73, '煙花易冷': 59, '明明就': 60, '手寫的從前': 76,
+      'Mojito': 58, '等你下課': 63, '最偉大的作品': 67
+    };
+
+    function normalizeTitle(str) {
+      return String(str || '')
+        .replace(/（.*?）/g, '')
+        .replace(/\(.*?\)/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    const persistedMap = JSON.parse(localStorage.getItem('jaySongLinks') || '{}');
+    const themeSaved = localStorage.getItem('jayTheme') || 'dark';
+    if (themeSaved === 'light') document.body.classList.add('light');
+
+    const songLibrary = albumData.flatMap(album => album.tracks.map(track => {
+      const cleanTitle = normalizeTitle(track);
+      return {
+        title: cleanTitle,
+        album: album.album,
+        year: album.year,
+        artist: '周杰倫',
+        youtubeId: persistedMap[cleanTitle]?.youtubeId || manualSeeds[cleanTitle] || '',
+        introStart: persistedMap[cleanTitle]?.introStart ?? introDefaults[cleanTitle] ?? 0,
+        interludeStart: persistedMap[cleanTitle]?.interludeStart ?? interludeDefaults[cleanTitle] ?? 60,
+      };
+    }));
+
+    const modes = [
+      { key: 'mc_intro', label: '選項前奏', desc: '聽前奏，從 4 個選項作答', inputType: 'multiple', clipType: 'intro' },
+      { key: 'text_intro', label: '打字前奏', desc: '聽前奏，直接輸入歌名', inputType: 'text', clipType: 'intro' },
+      { key: 'mc_interlude', label: '選項間奏', desc: '聽間奏，從 4 個選項作答', inputType: 'multiple', clipType: 'interlude' },
+      { key: 'text_interlude', label: '打字間奏', desc: '聽間奏，直接輸入歌名', inputType: 'text', clipType: 'interlude' }
+    ];
+
+    let selectedMode = modes[0];
+    let selectedAlbums = new Set(albumData.map(a => a.album));
+    let gameQueue = [];
+    let currentIndex = -1;
+    let currentSong = null;
+    let score = 0;
+    let answered = false;
+    let timer = null;
+    let timeLeft = 0;
+    let clipStopper = null;
+    let player = null;
+    let ytReady = false;
+
+    const $ = (id) => document.getElementById(id);
+    const modeGrid = $('modeGrid');
+    const albumChips = $('albumChips');
+    const songList = $('songList');
+    const manageList = $('manageList');
+
+    function onYouTubeIframeAPIReadyWrapper() {
+      ytReady = true;
+      player = new YT.Player('ytPlayer', {
+        height: '1', width: '1',
+        playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1 },
+        events: { onReady: () => {} }
+      });
+    }
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReadyWrapper;
+
+    function saveSongMap() {
+      const map = {};
+      songLibrary.forEach(song => {
+        if (song.youtubeId || song.introStart || song.interludeStart) {
+          map[song.title] = {
+            youtubeId: song.youtubeId,
+            introStart: Number(song.introStart) || 0,
+            interludeStart: Number(song.interludeStart) || 60
+          };
+        }
+      });
+      localStorage.setItem('jaySongLinks', JSON.stringify(map));
+    }
+
+    function extractYouTubeId(url) {
+      const str = String(url || '').trim();
+      if (!str) return '';
+      const short = str.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+      if (short) return short[1];
+      const watch = str.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+      if (watch) return watch[1];
+      const embed = str.match(/embed\/([A-Za-z0-9_-]{11})/);
+      if (embed) return embed[1];
+      return /^[A-Za-z0-9_-]{11}$/.test(str) ? str : '';
+    }
+
+    function updateThemeBtn() {
+      $('themeBtn').textContent = document.body.classList.contains('light') ? '☀️ 亮色' : '🌙 暗色';
+    }
+
+    function renderModes() {
+      modeGrid.innerHTML = '';
+      modes.forEach(mode => {
+        const btn = document.createElement('button');
+        btn.className = 'mode-btn' + (mode.key === selectedMode.key ? ' active' : '');
+        btn.innerHTML = `<span class="mode-name">${mode.label}</span><span class="mode-desc">${mode.desc}</span>`;
+        btn.onclick = () => { selectedMode = mode; updateLabels(); renderModes(); renderAnswerMode(); };
+        modeGrid.appendChild(btn);
+      });
+    }
+
+    function renderAlbumChips() {
+      albumChips.innerHTML = '';
+      albumData.forEach(item => {
+        const chip = document.createElement('button');
+        chip.className = 'chip' + (selectedAlbums.has(item.album) ? ' active' : '');
+        chip.textContent = `${item.album}`;
+        chip.onclick = () => {
+          if (selectedAlbums.has(item.album)) selectedAlbums.delete(item.album); else selectedAlbums.add(item.album);
+          if (selectedAlbums.size === 0) selectedAlbums.add(item.album);
+          renderAlbumChips(); renderLibrary(); updateAlbumNote();
+        };
+        albumChips.appendChild(chip);
+      });
+    }
+
+    function getFilteredSongs() {
+      const avail = $('availabilityFilter').value;
+      return songLibrary.filter(song => {
+        const albumOK = selectedAlbums.has(song.album);
+        const availOK = avail === 'all' ? true : avail === 'ready' ? !!song.youtubeId : !song.youtubeId;
+        return albumOK && availOK;
+      });
+    }
+
+    function updateAlbumNote() {
+      const filtered = getFilteredSongs();
+      $('albumCountNote').textContent = `${selectedAlbums.size} 張專輯｜${filtered.length} 首歌`;
+      $('readyCountPill').textContent = `已綁定：${songLibrary.filter(s => s.youtubeId).length}`;
+    }
+
+    function renderLibrary() {
+      const filtered = getFilteredSongs();
+      songList.innerHTML = filtered.map(song => `
+        <div class="song-item">
+          <div>
+            <b>${song.title}</b>
+            <div class="song-meta">${song.album} · ${song.year} · 前奏 ${song.introStart}s · 間奏 ${song.interludeStart}s</div>
+          </div>
+          <div class="song-badge">${song.youtubeId ? '已綁定' : '未綁定'}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderManageList() {
+      const missingFirst = [...songLibrary].sort((a,b) => Number(!!a.youtubeId) - Number(!!b.youtubeId) || a.year - b.year);
+      manageList.innerHTML = missingFirst.map(song => `
+        <div class="manage-item">
+          <h4>${song.title}</h4>
+          <div class="tiny">${song.album} · ${song.year} · 目前ID：${song.youtubeId || '尚未設定'}</div>
+          <div class="inline-row">
+            <input data-role="url" data-title="${song.title}" type="text" placeholder="貼上 YouTube / youtu.be / 11碼ID" value="${song.youtubeId || ''}" />
+            <button class="secondary small-btn" data-role="save" data-title="${song.title}">存檔</button>
+          </div>
+          <div class="inline-row">
+            <input data-role="intro" data-title="${song.title}" type="number" min="0" placeholder="前奏秒數" value="${song.introStart}" />
+            <input data-role="interlude" data-title="${song.title}" type="number" min="0" placeholder="間奏秒數" value="${song.interludeStart}" />
+          </div>
+          <div class="tiny" style="margin-top:8px;">建議搜尋：YouTube / YouTube Music 搜「周杰倫 ${song.title}」後，貼上對應頁面網址。</div>
+        </div>
+      `).join('');
+
+      manageList.querySelectorAll('[data-role="save"]').forEach(btn => {
+        btn.onclick = () => {
+          const title = btn.dataset.title;
+          const card = btn.closest('.manage-item');
+          const urlVal = card.querySelector('[data-role="url"]').value;
+          const introVal = Number(card.querySelector('[data-role="intro"]').value || 0);
+          const interVal = Number(card.querySelector('[data-role="interlude"]').value || 60);
+          const id = extractYouTubeId(urlVal);
+          const target = songLibrary.find(s => s.title === title);
+          if (!target) return;
+          if (urlVal && !id) {
+            alert('這個網址目前抓不到 YouTube 影片 ID，請改貼一般 YouTube 影片網址或 11 碼 ID。');
+            return;
+          }
+          target.youtubeId = id;
+          target.introStart = introVal;
+          target.interludeStart = interVal;
+          saveSongMap();
+          renderManageList(); renderLibrary(); updateAlbumNote();
+        };
+      });
+    }
+
+    function updateLabels() {
+      $('modeLabel').textContent = selectedMode.label;
+      $('clipTypePill').textContent = `片段：${selectedMode.clipType === 'intro' ? '前奏' : '間奏'}`;
+      $('qLabel').textContent = gameQueue.length ? `${Math.max(currentIndex + 1, 0)}/${gameQueue.length}` : '0/0';
+      $('scoreLabel').textContent = score;
+    }
+
+    function renderAnswerMode() {
+      const useText = selectedMode.inputType === 'text';
+      $('typingBox').classList.toggle('hidden', !useText);
+      $('optionsBox').classList.toggle('hidden', useText);
+      $('resultBox').classList.add('hidden');
+      $('resultBox').textContent = '';
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function sampleSongs() {
+      const filtered = getFilteredSongs();
+      const count = Math.min(Number($('questionCount').value || 10), filtered.length);
+      return shuffle(filtered).slice(0, count);
+    }
+
+    function stopClip() {
+      if (clipStopper) clearTimeout(clipStopper);
+      try { if (player && player.stopVideo) player.stopVideo(); } catch(e) {}
+    }
+
+    function playCurrentClip(song) {
+      if (!song) return;
+      if (!song.youtubeId) {
+        showResult('這首歌還沒有綁定可播放的 YouTube 影片 ID。請到「管理 YouTube 連結」補上。', false);
+        return;
+      }
+      if (!ytReady || !player || !player.loadVideoById) {
+        showResult('YouTube 播放器還沒準備好，請再按一次播放。', false);
+        return;
+      }
+      const startAt = selectedMode.clipType === 'intro' ? Number(song.introStart || 0) : Number(song.interludeStart || 0);
+      const clipLength = Math.max(2, Number($('clipLength').value || 6));
+      $('playerWrap').classList.remove('hidden');
+      stopClip();
+      try {
+        player.loadVideoById({ videoId: song.youtubeId, startSeconds: startAt });
+        clipStopper = setTimeout(() => { try { player.stopVideo(); } catch(e) {} }, clipLength * 1000);
+      } catch (e) {
+        showResult('影片播放失敗，請檢查這首歌的 YouTube ID。', false);
+      }
+    }
+
+    function showResult(msg, good) {
+      const box = $('resultBox');
+      box.classList.remove('hidden', 'good', 'bad');
+      box.classList.add(good ? 'good' : 'bad');
+      box.innerHTML = msg;
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timeLeft = Math.max(5, Number($('timeLimit').value || 15));
+      $('timerLabel').textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft -= 1;
+        $('timerLabel').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          if (!answered) revealAnswer(false, '時間到！');
+        }
+      }, 1000);
+    }
+
+    function revealAnswer(correct, prefix = '') {
+      answered = true;
+      clearInterval(timer);
+      stopClip();
+      if (correct) score += 1;
+      updateLabels();
+      showResult(`${prefix ? prefix + '<br>' : ''}${correct ? '✅ 答對了！' : '❌ 答錯了。'}<br><b>答案：</b>${currentSong.title}<br><span class="tiny">${currentSong.album} · ${currentSong.year}</span>`, correct);
+    }
+
+    function buildOptions(correctSong) {
+      const pool = getFilteredSongs().filter(s => s.title !== correctSong.title);
+      return shuffle([correctSong, ...shuffle(pool).slice(0, 3)]);
+    }
+
+    function buildQuestion() {
+      if (currentIndex >= gameQueue.length) {
+        $('questionText').innerHTML = `🎉 遊戲結束！總分 <b>${score}</b> / ${gameQueue.length}`;
+        $('optionsBox').innerHTML = '';
+        $('typingBox').classList.add('hidden');
+        $('timerLabel').textContent = '--';
+        stopClip();
+        return;
+      }
+      currentSong = gameQueue[currentIndex];
+      answered = false;
+      updateLabels(); renderAnswerMode();
+      $('questionText').textContent = selectedMode.clipType === 'intro' ? '請聽前奏片段，猜出歌名。' : '請聽間奏片段，猜出歌名。';
+      if (selectedMode.inputType === 'multiple') {
+        const opts = buildOptions(currentSong);
+        $('optionsBox').innerHTML = '';
+        opts.forEach(song => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = song.title;
+          btn.onclick = () => { if (!answered) revealAnswer(song.title === currentSong.title); };
+          $('optionsBox').appendChild(btn);
+        });
+      } else {
+        $('answerInput').value = '';
+      }
+      playCurrentClip(currentSong);
+      startTimer();
+    }
+
+    function startGame() {
+      const filtered = getFilteredSongs();
+      if (!filtered.length) {
+        alert('目前篩選條件下沒有可用歌曲。');
+        return;
+      }
+      gameQueue = sampleSongs();
+      currentIndex = 0;
+      score = 0;
+      updateLabels();
+      buildQuestion();
+    }
+
+    $('startBtn').onclick = startGame;
+    $('nextBtn').onclick = () => { if (!gameQueue.length) return; currentIndex += 1; buildQuestion(); };
+    $('replayBtn').onclick = () => playCurrentClip(currentSong);
+    $('showAnswerBtn').onclick = () => { if (currentSong && !answered) revealAnswer(false, '你選擇直接看答案。'); };
+    $('playBtn').onclick = () => playCurrentClip(currentSong);
+    $('submitTextBtn').onclick = () => {
+      if (!currentSong || answered) return;
+      const val = $('answerInput').value.trim().replace(/\s+/g, '');
+      const ans = currentSong.title.replace(/\s+/g, '');
+      revealAnswer(val === ans);
+    };
+    $('answerInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('submitTextBtn').click(); });
+
+    $('themeBtn').onclick = () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('jayTheme', document.body.classList.contains('light') ? 'light' : 'dark');
+      updateThemeBtn();
+    };
+
+    $('allAlbumsBtn').onclick = () => {
+      selectedAlbums = new Set(albumData.map(a => a.album));
+      renderAlbumChips(); renderLibrary(); updateAlbumNote();
+    };
+
+    $('randomAlbumBtn').onclick = () => {
+      const pick = albumData[Math.floor(Math.random() * albumData.length)].album;
+      selectedAlbums = new Set([pick]);
+      renderAlbumChips(); renderLibrary(); updateAlbumNote();
+    };
+
+    $('toggleManageBtn').onclick = () => $('managePanel').classList.toggle('hidden');
+    $('availabilityFilter').onchange = () => { renderLibrary(); updateAlbumNote(); };
+
+    renderModes();
+    renderAlbumChips();
+    renderLibrary();
+    renderManageList();
+    updateAlbumNote();
+    updateLabels();
+    renderAnswerMode();
+    updateThemeBtn();
+  </script>
+</body>
+</html>
