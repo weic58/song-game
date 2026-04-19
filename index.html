@@ -988,6 +988,7 @@
         albumData.forEach(item => {
           item.tracks.forEach(title => {
             metaMap.set(title, {
+              title,
               album: item.album,
               year: item.year,
               artist: "周杰倫"
@@ -995,12 +996,19 @@
           });
         });
 
-        songLibrary = data.map(song => {
-          const saved = persistedMap[song.title] || {};
-          const meta = metaMap.get(song.title) || {};
+        const jsonMap = new Map();
+        data.forEach(song => {
+          if (song && song.title) {
+            jsonMap.set(song.title, song);
+          }
+        });
+
+        songLibrary = [...metaMap.values()].map(meta => {
+          const song = jsonMap.get(meta.title) || {};
+          const saved = persistedMap[meta.title] || {};
 
           return {
-            title: song.title || "",
+            title: meta.title,
             album: song.album || meta.album || "",
             year: Number(song.year || meta.year || 0),
             artist: song.artist || meta.artist || "周杰倫",
@@ -1008,6 +1016,21 @@
             introStart: Number(saved.introStart ?? song.introStart ?? 0),
             interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
           };
+        });
+
+        data.forEach(song => {
+          if (!song || !song.title || metaMap.has(song.title)) return;
+
+          const saved = persistedMap[song.title] || {};
+          songLibrary.push({
+            title: song.title || "",
+            album: song.album || "",
+            year: Number(song.year || 0),
+            artist: song.artist || "周杰倫",
+            youtubeId: saved.youtubeId || song.youtubeId || "",
+            introStart: Number(saved.introStart ?? song.introStart ?? 0),
+            interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
+          });
         });
 
         console.log("songs.json 載入成功，共", songLibrary.length, "首");
