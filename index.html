@@ -945,7 +945,15 @@
     const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
     const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
     const savedAlbumMode = localStorage.getItem("guess_song_album_mode") || "custom";
-    const highScores = JSON.parse(localStorage.getItem("guess_song_high_scores") || "{\"intro\":0,\"interlude\":0,\"mixed\":0,\"endless\":0}");
+    const highScores = JSON.parse(
+      localStorage.getItem("guess_song_high_scores") ||
+      JSON.stringify({
+        intro: { score: 0, time: null },
+        interlude: { score: 0, time: null },
+        mixed: { score: 0, time: null },
+        endless: { score: 0, time: null }
+      })
+    );
 
     document.body.setAttribute("data-theme", savedTheme);
 
@@ -1069,13 +1077,38 @@
 
     function updateHighScoreUI() {
       ["intro", "interlude", "mixed", "endless"].forEach(k => {
-        $("hs_" + k).textContent = highScores[k] || 0;
+        const record = highScores[k] || { score: 0, time: null };
+
+        if (!record.score) {
+          $("hs_" + k).textContent = "0";
+        } else if (record.time == null) {
+          $("hs_" + k).textContent = `${record.score}`;
+        } else {
+          $("hs_" + k).textContent = `${record.score} 分｜${record.time.toFixed(1)} 秒`;
+        }
       });
     }
 
     function saveHighScore() {
-      if (score > (highScores[gameMode] || 0)) {
-        highScores[gameMode] = score;
+      const currentTime = Number(totalAnswerTime || 0);
+      const oldRecord = highScores[gameMode] || { score: 0, time: null };
+
+      const shouldUpdate =
+        score > oldRecord.score ||
+        (
+          score === oldRecord.score &&
+          score > 0 &&
+          (
+            oldRecord.time == null ||
+            currentTime < oldRecord.time
+          )
+        );
+
+      if (shouldUpdate) {
+        highScores[gameMode] = {
+          score,
+          time: currentTime
+        };
         localStorage.setItem("guess_song_high_scores", JSON.stringify(highScores));
         updateHighScoreUI();
       }
