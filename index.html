@@ -1,878 +1,1901 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>猜歌王</title>
+  <link
+    rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234a90e2'/><text x='50' y='68' font-size='58' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'>猜</text></svg>"
+  />
+  <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root {
-      --bg: #0b1020;
-      --bg2: #121933;
-      --card: rgba(21, 28, 54, 0.92);
-      --card2: rgba(28, 37, 70, 0.94);
-      --text: #f5f7ff;
-      --muted: #afbbdd;
-      --border: rgba(255,255,255,0.09);
-      --primary: #7c9cff;
-      --primary-2: #a78bfa;
-      --success: #4ade80;
-      --danger: #ff7a90;
-      --warn: #ffd166;
-      --shadow: 0 18px 40px rgba(0,0,0,0.28);
-      --radius: 22px;
+      --bg: #121213;
+      --text: #fff;
+      --border: #3a3a3c;
+      --panel: #272729;
+      --panel2: #1d1d20;
+      --accent: #4a90e2;
+      --accent2: #7c9cff;
+      --green: #538d4e;
+      --red: #e23636;
+      --overlay: rgba(0, 0, 0, 0.88);
+      --muted: #c8c8cf;
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
     }
 
-    body.light {
-      --bg: #eef3ff;
-      --bg2: #f8fbff;
-      --card: rgba(255,255,255,0.95);
-      --card2: rgba(245,248,255,0.98);
-      --text: #15203b;
-      --muted: #5f6d92;
-      --border: rgba(20,30,60,0.08);
-      --primary: #516dff;
-      --primary-2: #8d63ff;
-      --success: #1fb86a;
-      --danger: #f05672;
-      --warn: #d89d0d;
-      --shadow: 0 18px 40px rgba(61,84,150,0.12);
+    [data-theme="light"] {
+      --bg: #fff;
+      --text: #121213;
+      --border: #d3d6da;
+      --panel: #f1f4fb;
+      --panel2: #fff;
+      --accent: #2b7cd3;
+      --accent2: #6c7dff;
+      --green: #5aa75c;
+      --red: #de4d4d;
+      --overlay: rgba(255, 255, 255, 0.95);
+      --muted: #5a6172;
+      --shadow: 0 10px 24px rgba(60, 86, 160, 0.12);
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
-      font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(124,156,255,.18), transparent 32%),
-        radial-gradient(circle at top right, rgba(167,139,250,.16), transparent 28%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      transition: 0.25s;
     }
 
     .app {
-      max-width: 560px;
+      max-width: 520px;
       margin: 0 auto;
-      min-height: 100vh;
-      padding: 18px 16px 100px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .hero {
+    header {
       display: flex;
       justify-content: space-between;
-      align-items: start;
-      gap: 12px;
-      margin-bottom: 14px;
+      align-items: center;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .title {
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: .5px;
+    h1 {
       margin: 0;
+      font-size: 1.9rem;
+      cursor: pointer;
     }
 
-    .subtitle {
-      margin-top: 8px;
-      font-size: 14px;
-      line-height: 1.65;
-      color: var(--muted);
+    .hc {
+      display: flex;
+      gap: 8px;
     }
 
-    .theme-btn, .icon-btn, .chip, button, select, input {
-      border-radius: 16px;
-      border: 1px solid var(--border);
-    }
-
-    .theme-btn, .icon-btn, button, .chip { cursor: pointer; transition: .16s ease; }
-    .theme-btn:hover, .icon-btn:hover, button:hover, .chip:hover { transform: translateY(-1px); }
-
-    .theme-btn {
-      background: var(--card);
+    .ib {
+      background: none;
+      border: none;
       color: var(--text);
-      padding: 10px 14px;
-      min-width: 84px;
-      box-shadow: var(--shadow);
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 6px;
     }
 
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .ib:hover {
+      transform: scale(1.08);
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: calc(100vh - 67px);
       padding: 16px;
-      margin-bottom: 14px;
-      backdrop-filter: blur(10px);
+      overflow: hidden;
     }
 
-    .section-head {
+    .screen.active {
+      display: flex;
+    }
+
+    .loading {
+      color: var(--accent);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .cards {
+      display: grid;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 18px;
+      padding: 22px 18px;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: 0.18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px) scale(1.01);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+    }
+
+    .card p {
+      margin: 0 0 8px;
+      opacity: 0.95;
+    }
+
+    .b1 {
+      background: linear-gradient(135deg, #8e44ad, #5b2c83);
+    }
+
+    .b2 {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    .b3 {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+    }
+
+    .b4 {
+      background: linear-gradient(135deg, #f39c12, #d35400);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.22);
+      font-weight: 800;
+    }
+
+    .note,
+    .foot {
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .note {
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 14px;
+    }
+
+    .foot {
+      font-size: 12px;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .modal,
+    .overlay,
+    .manager {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s;
+    }
+
+    .show {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .box,
+    .obox {
+      width: min(92vw, 420px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .box {
+      max-height: 88vh;
+      overflow-y: auto;
+      position: relative;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .box::-webkit-scrollbar {
+      display: none;
+    }
+
+    .obox h2,
+    .box h2 {
+      margin: 0 0 14px;
+      text-align: center;
+    }
+
+    .x {
+      position: sticky;
+      top: 0;
+      float: right;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .sg {
+      margin-bottom: 16px;
+    }
+
+    .sl {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .grid2,
+    .agrid,
+    .albumgrid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .btn,
+    .ab,
+    .cb,
+    .act,
+    .opt,
+    .pb,
+    .sb,
+    .mini {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--text);
+      cursor: pointer;
+      transition: 0.18s;
+    }
+
+    .btn,
+    .ab {
+      padding: 12px 10px;
+      font-weight: 800;
+    }
+
+    .btn.active,
+    .ab.active {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent) !important;
+    }
+
+    .btn:hover,
+    .ab:hover,
+    .act:hover,
+    .opt:hover,
+    .pb:hover,
+    .sb:hover,
+    .cb:hover,
+    .mini:hover {
+      transform: translateY(-1px);
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--text);
+      padding: 10px 12px;
+    }
+
+    .cb,
+    .pb,
+    .sb {
+      padding: 12px 16px;
+      font-weight: 800;
+    }
+
+    .cb,
+    .pb {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ghost {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    #game {
+      padding: 0;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 14px 16px 18px;
+      gap: 14px;
+    }
+
+    .gi {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      margin-bottom: 12px;
     }
 
-    .section-title {
-      font-size: 17px;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .subnote {
+    .mb {
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
+      font-weight: 800;
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    .sgp {
+      display: flex;
       gap: 10px;
-      margin-bottom: 14px;
     }
 
-    .stat {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 12px 10px;
-      text-align: center;
+    .pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
     }
 
-    .stat .k { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-    .stat .v { font-size: 22px; font-weight: 900; }
+    .sp {
+      background: var(--accent);
+    }
 
-    .mode-grid {
+    .tp {
+      background: var(--red);
+    }
+
+    .danger {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    .ar {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
 
-    .mode-btn {
-      background: var(--card2);
-      color: var(--text);
-      padding: 14px;
-      min-height: 88px;
-      text-align: left;
-    }
-
-    .mode-btn.active {
-      outline: 2px solid rgba(124,156,255,.55);
-      background: linear-gradient(180deg, rgba(124,156,255,.18), rgba(124,156,255,.08));
-    }
-
-    .mode-name { display: block; font-weight: 800; margin-bottom: 6px; }
-    .mode-desc { font-size: 12px; color: var(--muted); line-height: 1.45; }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    select, input[type="number"], input[type="text"] {
-      width: 100%;
-      min-height: 48px;
-      padding: 12px 14px;
-      outline: none;
-      background: var(--card2);
-      color: var(--text);
-    }
-
-    .album-scroll, .quick-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-      scrollbar-width: none;
-    }
-    .album-scroll::-webkit-scrollbar, .quick-scroll::-webkit-scrollbar { display: none; }
-
-    .chip {
-      white-space: nowrap;
-      padding: 10px 13px;
-      background: var(--card2);
-      color: var(--text);
-      font-size: 13px;
-    }
-
-    .chip.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .action-row, .audio-row, .answer-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    button.primary, button.secondary, button.success, button.ghost {
-      min-height: 46px;
-      padding: 11px 16px;
+    .act {
+      min-height: 44px;
       font-weight: 800;
-      color: var(--text);
-      background: var(--card2);
+      background: var(--panel);
     }
 
-    button.primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: white;
-      border: none;
-    }
-
-    button.success {
-      background: linear-gradient(135deg, #22c55e, #34d399);
-      color: #082616;
-      border: none;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.06);
+    .panel {
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 999px;
-      font-size: 12px;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
     }
 
-    .question-box, .result-box, .library-box, .yt-box {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
-    }
-
-    .question-box { font-size: 15px; line-height: 1.7; }
-    .result-box.good { border-color: rgba(34,197,94,.35); }
-    .result-box.bad { border-color: rgba(240,86,114,.35); }
-
-    .options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .option-btn {
-      min-height: 62px;
-      padding: 14px;
-      background: var(--card2);
-      color: var(--text);
-      text-align: left;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-    }
-
-    .answer-row input { flex: 1; min-width: 180px; }
-
-    .hidden { display: none !important; }
-
-    .library-box { max-height: 280px; overflow: auto; }
-    .song-item {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-      padding: 11px 12px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-    }
-
-    .song-item b { display: block; font-size: 14px; margin-bottom: 4px; }
-    .song-meta { font-size: 12px; color: var(--muted); line-height: 1.45; }
-    .song-badge {
-      font-size: 11px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
-    }
-
-    .manage-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .manage-list {
-      max-height: 320px;
-      overflow: auto;
-      display: grid;
-      gap: 8px;
-    }
-
-    .manage-item {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-    }
-
-    .manage-item h4 { margin: 0 0 8px; font-size: 14px; }
-    .tiny { font-size: 12px; color: var(--muted); }
-    .inline-row { display: flex; gap: 8px; margin-top: 8px; }
-    .inline-row input { flex: 1; }
-    .small-btn { min-height: 40px; padding: 9px 12px; font-weight: 800; }
-
-    .footer-safe {
-      color: var(--muted);
-      font-size: 12px;
+    .q {
+      text-align: center;
       line-height: 1.7;
+      min-height: 76px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pz {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 160px;
+      position: relative;
+    }
+
+    .disc {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 35%, #fff 0 5%, transparent 6%),
+        linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.2rem;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(74, 144, 226, 0.28);
+      cursor: pointer;
+      border: none;
+    }
+
+    .playing {
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .meta {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
       margin-top: 8px;
     }
 
-    @media (max-width: 420px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .mode-grid, .form-grid, .options { grid-template-columns: 1fr; }
-      .title { font-size: 27px; }
+    .opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .opt {
+      min-height: 58px;
+      padding: 12px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .ans {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ans input {
+      flex: 1;
+    }
+
+    .res {
+      min-height: 58px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      padding: 14px;
+      line-height: 1.6;
+    }
+
+    .good {
+      border-color: var(--green) !important;
+    }
+
+    .bad {
+      border-color: var(--red) !important;
+    }
+
+    #yt {
+      width: 1px;
+      height: 1px;
+      opacity: 0.01;
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      pointer-events: none;
+    }
+
+    .alist {
+      max-height: 260px;
+      overflow: auto;
+      margin-top: 10px;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--panel2);
+    }
+
+    .alist div {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .alist div:last-child {
+      border-bottom: none;
+    }
+
+    .mgr {
+      width: min(94vw, 760px);
+      height: min(90vh, 860px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mt {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mtitle {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin: 0;
+    }
+
+    .mtools {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+    }
+
+    .mlist {
+      flex: 1;
+      overflow: auto;
+      padding-right: 4px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .mi {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .mh {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mbadge {
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 8px;
+      white-space: nowrap;
+    }
+
+    .mgrid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.7fr 0.7fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .ma {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 8px;
+    }
+
+    .tiny {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .ibox {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel2);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .inote {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .frow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .fpill {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .floatfx {
+      position: fixed;
+      left: 50%;
+      top: 90px;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: 900;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 60;
+    }
+
+    .floatfx.show {
+      animation: floatUp 0.9s ease-out;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px) scale(0.8);
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-35px) scale(1.1);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .mgr {
+        width: 96vw;
+        height: 92vh;
+        padding: 14px;
+      }
+
+      .mtools,
+      .mgrid,
+      .grid2,
+      .agrid,
+      .albumgrid,
+      .opts {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
-<body>
+<body data-theme="dark">
   <div class="app">
-    <div class="hero">
-      <div>
-        <h1 class="title">🎵 Jay 猜歌王</h1>
-        <div class="subtitle">手機風格猜歌遊戲：前奏猜、間奏猜、選項猜、打字猜，支援亮／暗主題、按專輯出題。</div>
+    <header>
+      <h1 onclick="quitToHome()">猜歌王</h1>
+      <div class="hc">
+        <button id="restartBtn" class="ib" title="重新開始" style="display:none">🔄</button>
+        <button id="pauseBtn" class="ib" title="暫停" style="display:none">⏸️</button>
+        <button id="muteBtn" class="ib" title="靜音">🔊</button>
+        <button id="themeBtn" class="ib" title="亮暗主題">🌓</button>
+        <button id="settingsBtn" class="ib" title="設定">⚙️</button>
       </div>
-      <button class="theme-btn" id="themeBtn">🌙 暗色</button>
+    </header>
+
+    <div id="home" class="screen active">
+      <div class="loading">猜歌遊戲</div>
+
+      <div class="cards">
+        <button class="card b1" onclick="startGame('intro')">
+          <h2>🎵 前奏模式</h2>
+          <p>專注聽前奏，選項或打字作答</p>
+          <div class="badge">最高分：<span id="hs_intro">0</span></div>
+        </button>
+
+        <button class="card b2" onclick="startGame('interlude')">
+          <h2>🎼 間奏模式</h2>
+          <p>用間奏片段挑戰辨識力</p>
+          <div class="badge">最高分：<span id="hs_interlude">0</span></div>
+        </button>
+
+        <button class="card b3" onclick="startGame('mixed')">
+          <h2>🔥 混合模式</h2>
+          <p>前奏與間奏隨機出題</p>
+          <div class="badge">最高分：<span id="hs_mixed">0</span></div>
+        </button>
+
+        <button class="card b4" onclick="startGame('endless')">
+          <h2>♾️ 無限模式</h2>
+          <p>可重複出題，直到時間結束</p>
+          <div class="badge">最高分：<span id="hs_endless">0</span></div>
+        </button>
+      </div>
+
+      <div class="note">請先到右上角設定選擇專輯模式、回合數與作答方式。</div>
+      <div class="foot">Made by weic58 & ChatGPT, 2026.</div>
     </div>
 
-    <div class="panel">
-      <div class="stats">
-        <div class="stat"><div class="k">模式</div><div class="v" id="modeLabel">選項前奏</div></div>
-        <div class="stat"><div class="k">題號</div><div class="v" id="qLabel">0/0</div></div>
-        <div class="stat"><div class="k">分數</div><div class="v" id="scoreLabel">0</div></div>
-        <div class="stat"><div class="k">倒數</div><div class="v" id="timerLabel">--</div></div>
-      </div>
-
-      <div class="section-head">
-        <h2 class="section-title">🎮 模式選擇</h2>
-        <div class="subnote">可依前奏／間奏與作答方式切換</div>
-      </div>
-      <div class="mode-grid" id="modeGrid"></div>
-    </div>
-
-    <div class="panel">
-      <div class="section-head">
-        <h2 class="section-title">💿 專輯範圍</h2>
-        <div class="subnote" id="albumCountNote">全部歌曲</div>
-      </div>
-      <div class="album-scroll" id="albumChips"></div>
-
-      <div class="section-head" style="margin-top:14px;">
-        <h2 class="section-title">⚙️ 遊戲設定</h2>
-        <div class="subnote">可選每題秒數、題數與播放長度</div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>每題秒數</label>
-          <input id="timeLimit" type="number" min="5" max="60" value="15" />
+    <div id="game" class="screen">
+      <div class="wrap">
+        <div class="gi">
+          <div id="modeDisplay" class="mb">🎵 前奏模式</div>
+          <div class="sgp">
+            <div class="pill sp">⭐ <span id="score">0</span></div>
+            <div id="timePill" class="pill tp">⏳ <span id="time">--</span></div>
+          </div>
         </div>
-        <div class="field">
-          <label>題目數量</label>
-          <input id="questionCount" type="number" min="1" max="50" value="10" />
+
+        <div class="ar">
+          <button class="act" onclick="replayClip()">▶️ 重播 -1</button>
+          <button class="act" onclick="skipQuestion()">⏭️ 跳過 -1</button>
         </div>
-        <div class="field">
-          <label>片段長度（秒）</label>
-          <input id="clipLength" type="number" min="2" max="20" value="6" />
+
+        <div class="panel q" id="question">準備開始</div>
+
+        <div class="panel">
+          <div class="pz">
+            <button id="disc" class="disc" onclick="replayClip()">▶</button>
+            <div id="yt"></div>
+          </div>
+          <div class="meta" id="meta">點中間圓盤可重播片段</div>
         </div>
-        <div class="field">
-          <label>出題條件</label>
-          <select id="availabilityFilter">
-            <option value="all">全部歌曲</option>
-            <option value="ready">只出已綁定 YouTube ID 的歌</option>
-            <option value="missing">只看尚未綁定 ID 的歌</option>
-          </select>
+
+        <div class="panel">
+          <div id="options" class="opts"></div>
+          <div id="typing" class="ans hidden">
+            <input id="answerInput" type="text" placeholder="輸入歌名，例如：晴天" />
+            <button class="pb" onclick="submitTypedAnswer()">送出</button>
+          </div>
         </div>
+
+        <div id="result" class="res hidden"></div>
       </div>
-
-      <div class="quick-scroll" style="margin-top:12px;">
-        <button class="chip" id="allAlbumsBtn">全部專輯</button>
-        <button class="chip" id="randomAlbumBtn">隨機一張專輯</button>
-        <button class="chip" id="toggleManageBtn">管理 YouTube 連結</button>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="section-head">
-        <h2 class="section-title">▶️ 開始遊戲</h2>
-        <div class="subnote">先播片段，再答題</div>
-      </div>
-
-      <div class="audio-row" style="margin-bottom:12px;">
-        <button class="success" id="playBtn">▶ 播放片段</button>
-        <span class="pill" id="clipTypePill">片段：前奏</span>
-        <span class="pill" id="readyCountPill">已綁定：0</span>
-      </div>
-
-      <div class="action-row" style="margin-bottom:12px;">
-        <button class="primary" id="startBtn">開始遊戲</button>
-        <button class="secondary" id="nextBtn">下一題</button>
-        <button class="secondary" id="replayBtn">重播</button>
-        <button class="secondary" id="showAnswerBtn">揭曉答案</button>
-      </div>
-
-      <div class="question-box" id="questionText">先選專輯與模式，再按「開始遊戲」。</div>
-
-      <div id="playerWrap" class="hidden" style="margin-top:12px;">
-        <div id="ytPlayer"></div>
-      </div>
-
-      <div class="options hidden" id="optionsBox" style="margin-top:12px;"></div>
-
-      <div class="answer-row hidden" id="typingBox" style="margin-top:12px;">
-        <input id="answerInput" type="text" placeholder="輸入歌名，例如：晴天" />
-        <button class="primary" id="submitTextBtn">送出</button>
-      </div>
-
-      <div class="result-box hidden" id="resultBox" style="margin-top:12px;"></div>
-    </div>
-
-    <div class="panel hidden" id="managePanel">
-      <div class="section-head">
-        <h2 class="section-title">🔗 管理 YouTube / YouTube Music 連結</h2>
-        <div class="subnote">貼上歌曲網址即可自動抓取 ID 並存在瀏覽器</div>
-      </div>
-      <div class="yt-box" style="margin-bottom:12px;">
-        <div class="tiny">支援一般 YouTube 網址、youtu.be 短網址；YouTube Music 常會導到 YouTube 影片或專輯頁，但不是每首都能穩定轉成單曲影片 ID。</div>
-      </div>
-      <div class="manage-list" id="manageList"></div>
-    </div>
-
-    <div class="panel">
-      <div class="section-head">
-        <h2 class="section-title">📚 題庫總覽</h2>
-        <div class="subnote">依專輯建立完整曲目資料</div>
-      </div>
-      <div class="library-box" id="songList"></div>
-      <div class="footer-safe">⚠️ 這個版本不會替你下載歌曲。它只會播放你已綁定的 YouTube 影片片段。未綁定 ID 的歌曲可先保留在題庫中，之後再逐首補連結。</div>
     </div>
   </div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <div id="settingsModal" class="modal">
+    <div class="box">
+      <button class="x" onclick="closeSettings()">✕</button>
+      <h2>遊戲設定</h2>
+
+      <div class="sg">
+        <span class="sl">專輯模式</span>
+        <div class="agrid">
+          <button class="btn" data-album-mode="custom">🎯 自選</button>
+          <button class="btn" data-album-mode="single_random">🎲 單張隨機</button>
+          <button class="btn" data-album-mode="multi_random">🎲 多張隨機</button>
+          <button class="btn" data-album-mode="all">🌐 全部專輯</button>
+        </div>
+        <div class="ghost">隨機模式不顯示抽到哪張專輯。自選模式才會使用下方勾選。</div>
+      </div>
+
+      <div class="sg" id="customAlbumGroup">
+        <span class="sl">自選專輯</span>
+        <div id="albumGrid" class="albumgrid"></div>
+        <div class="row" style="justify-content:flex-start;margin-top:10px">
+          <button class="sb" onclick="selectAllAlbums()">全部專輯</button>
+          <button class="sb" onclick="selectRandomAlbum()">隨機一張</button>
+        </div>
+      </div>
+
+      <div class="sg">
+        <span class="sl">亮暗主題</span>
+        <div class="grid2">
+          <button class="btn" data-theme-choice="dark">🌙 暗色</button>
+          <button class="btn" data-theme-choice="light">☀️ 亮色</button>
+        </div>
+      </div>
+
+      <div class="sg">
+        <span class="sl">作答模式</span>
+        <div class="grid2">
+          <button class="btn" data-answer-mode="multiple">✅ 選項猜</button>
+          <button class="btn" data-answer-mode="text">⌨️ 打字猜</button>
+        </div>
+      </div>
+
+      <div class="sg">
+        <span class="sl">回合數（一般/無限）</span>
+        <input id="roundCountInput" type="number" min="1" max="50" value="10" />
+      </div>
+
+      <div class="sg">
+        <span class="sl">總秒數</span>
+        <input id="timeLimitInput" type="number" min="10" max="999" value="90" />
+      </div>
+
+      <div class="sg">
+        <span class="sl">片段長度（秒）</span>
+        <input id="clipLengthInput" type="number" min="2" max="20" value="6" />
+      </div>
+
+      <div class="row">
+        <button class="sb" onclick="openManager()">管理歌曲</button>
+        <button class="cb" onclick="closeSettings()">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="managerModal" class="manager">
+    <div class="mgr">
+      <div class="mt">
+        <h2 class="mtitle">歌曲管理</h2>
+        <button class="x" onclick="closeManager()">✕</button>
+      </div>
+
+      <div class="tiny">可搜尋歌名、依專輯查看，並直接編輯 YouTube ID、前奏秒數、間奏秒數與試播片段。</div>
+
+      <div class="mtools">
+        <input id="managerSearchInput" type="text" placeholder="搜尋歌名，例如：晴天 / 夜曲 / 告白" />
+        <input id="managerAlbumFilter" type="text" placeholder="專輯篩選，例如：葉惠美" />
+      </div>
+
+      <div class="row" style="margin-top:0;justify-content:flex-start">
+        <button class="sb" onclick="fillManagerAlbumFromSelected()">帶入目前選取專輯</button>
+        <button class="sb" onclick="clearManagerFilters()">清除篩選</button>
+      </div>
+
+      <div class="ibox">
+        <div class="inote">支援上傳 CSV 檔案匯入。欄位順序：<code>歌名,youtubeId或網址,前奏秒數,間奏秒數</code>。若秒數留空，會保留原本值。</div>
+        <div class="frow">
+          <input id="csvFileInput" type="file" accept=".csv,text/csv" />
+          <button class="sb" onclick="importCsvFile()">匯入檔案</button>
+          <button class="sb" onclick="exportCsvData()">匯出目前資料</button>
+        </div>
+        <div id="csvFileStatus" class="fpill">尚未選擇檔案</div>
+      </div>
+
+      <div id="manageBox" class="mlist"></div>
+    </div>
+  </div>
+
+  <div id="pauseOverlay" class="overlay">
+    <div class="obox">
+      <h2>遊戲暫停 ⏸️</h2>
+      <p>按下繼續即可回到目前題目。</p>
+      <div class="row">
+        <button class="pb" onclick="togglePause()">繼續遊戲</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOver" class="overlay">
+    <div class="obox">
+      <h2 id="endTitle">遊戲結束！</h2>
+      <p>總分：<b id="finalScore">0</b> / <span id="finalTotal">0</span></p>
+      <div id="answersWrap" class="alist hidden"></div>
+      <div class="row">
+        <button class="pb" onclick="restartCurrentGame()">再來一局</button>
+        <button class="sb" onclick="quitToHome()">回首頁</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="floatFx" class="floatfx">+1</div>
+
   <script>
     const albumData = [
-      { album: 'Jay', year: 2000, tracks: ['可愛女人','完美主義','星晴','娘子','鬥牛','黑色幽默','伊斯坦堡','印地安老斑鳩','龍捲風','反方向的鐘'] },
-      { album: '范特西', year: 2001, tracks: ['愛在西元前','爸 我回來了','簡單愛','忍者','開不了口','上海 一九四三','對不起','威廉古堡','雙截棍','安靜'] },
-      { album: '八度空間', year: 2002, tracks: ['半獸人','半島鐵盒','暗號','龍拳','火車叨位去','分裂','爺爺泡的茶','回到過去','米蘭的小鐵匠','最後的戰役'] },
-      { album: '葉惠美', year: 2003, tracks: ['以父之名','懦夫','晴天','三年二班','東風破','妳聽得到','同一種調調','她的睫毛','愛情懸崖','梯田','雙刀'] },
-      { album: '七里香', year: 2004, tracks: ['我的地盤','七里香','藉口','外婆','將軍','擱淺','亂舞春秋','困獸之鬥','園遊會','止戰之殤'] },
-      { album: '11月的蕭邦', year: 2005, tracks: ['夜曲','藍色風暴','髮如雪','黑色毛衣','四面楚歌','楓','浪漫手機','逆鱗','麥芽糖','珊瑚海','飄移','一路向北'] },
-      { album: '依然范特西', year: 2006, tracks: ['夜的第七章','聽媽媽的話','千里之外','本草綱目','退後','紅模仿','心雨','白色風車','迷迭香','菊花台'] },
-      { album: '我很忙', year: 2007, tracks: ['牛仔很忙','彩虹','青花瓷','陽光宅男','蒲公英的約定','無雙','我不配','扯','甜甜的','最長的電影'] },
-      { album: '魔杰座', year: 2008, tracks: ['龍戰騎士','給我一首歌的時間','蛇舞','花海','魔術先生','說好的幸福呢','蘭亭序','流浪詩人','時光機','喬克叔叔','稻香'] },
-      { album: '跨時代', year: 2010, tracks: ['跨時代','說了再見','煙花易冷','免費教學錄影帶','好久不見','雨下一整晚','嘻哈空姐','我落淚·情緒零碎','愛的飛行日記','自導自演','超人不會飛'] },
-      { album: '驚嘆號', year: 2011, tracks: ['驚嘆號','迷魂曲','Mine Mine','公主病','你好嗎','療傷燒肉粽','琴傷','水手怕水','世界未末日','皮影戲','超跑女神'] },
-      { album: '12新作', year: 2012, tracks: ['四季列車','手語','公公偏頭痛','明明就','傻笑','比較大的大提琴','愛你沒差','紅塵客棧','夢想啟動','大笨鐘','哪裡都是你','烏克麗麗'] },
-      { album: '哎呦，不錯哦', year: 2014, tracks: ['陽明山','竊愛','算什麼男人','天涯過客','怎麼了','一口氣全唸對','我要夏天','手寫的從前','鞋子特大號','聽爸爸的話','美人魚','聽見下雨的聲音'] },
-      { album: '周杰倫的床邊故事', year: 2016, tracks: ['床邊故事','說走就走','一點點','前世情人','英雄','不該','土耳其冰淇淋','告白氣球','Now You See Me','愛情廢柴'] },
-      { album: '最偉大的作品', year: 2022, tracks: ['Intro','最偉大的作品','還在流浪','說好不哭','紅顏如霜','不愛我就拉倒','Mojito','錯過的煙火','等你下課','粉色海洋','倒影','我是如此相信'] },
-      { album: '太陽之子', year: 2026, tracks: ['太陽之子','西西里','那天下雨了','湘女多情','誰稀罕','七月的極光','愛琴海','I Do','聖徒','女兒殿下','淘金小鎮','鄉間的路','聖誕星'] }
+      {
+        album: "Jay",
+        year: 2000,
+        tracks: [
+          "可愛女人", "完美主義", "星晴", "娘子", "鬥牛",
+          "黑色幽默", "伊斯坦堡", "印地安老斑鳩", "龍捲風", "反方向的鐘"
+        ]
+      },
+      {
+        album: "范特西",
+        year: 2001,
+        tracks: [
+          "愛在西元前", "爸 我回來了", "簡單愛", "忍者", "開不了口",
+          "上海 一九四三", "對不起", "威廉古堡", "雙截棍", "安靜"
+        ]
+      },
+      {
+        album: "八度空間",
+        year: 2002,
+        tracks: [
+          "半獸人", "半島鐵盒", "暗號", "龍拳", "火車叨位去",
+          "分裂", "爺爺泡的茶", "回到過去", "米蘭的小鐵匠", "最後的戰役"
+        ]
+      },
+      {
+        album: "葉惠美",
+        year: 2003,
+        tracks: [
+          "以父之名", "懦夫", "晴天", "三年二班", "東風破",
+          "妳聽得到", "同一種調調", "她的睫毛", "愛情懸崖", "梯田", "雙刀"
+        ]
+      },
+      {
+        album: "七里香",
+        year: 2004,
+        tracks: [
+          "我的地盤", "七里香", "藉口", "外婆", "將軍",
+          "擱淺", "亂舞春秋", "困獸之鬥", "園遊會", "止戰之殤"
+        ]
+      },
+      {
+        album: "11月的蕭邦",
+        year: 2005,
+        tracks: [
+          "夜曲", "藍色風暴", "髮如雪", "黑色毛衣", "四面楚歌",
+          "楓", "浪漫手機", "逆鱗", "麥芽糖", "珊瑚海", "飄移", "一路向北"
+        ]
+      },
+      {
+        album: "依然范特西",
+        year: 2006,
+        tracks: [
+          "夜的第七章", "聽媽媽的話", "千里之外", "本草綱目", "退後",
+          "紅模仿", "心雨", "白色風車", "迷迭香", "菊花台"
+        ]
+      },
+      {
+        album: "我很忙",
+        year: 2007,
+        tracks: [
+          "牛仔很忙", "彩虹", "青花瓷", "陽光宅男", "蒲公英的約定",
+          "無雙", "我不配", "扯", "甜甜的", "最長的電影"
+        ]
+      },
+      {
+        album: "魔杰座",
+        year: 2008,
+        tracks: [
+          "龍戰騎士", "給我一首歌的時間", "蛇舞", "花海", "魔術先生",
+          "說好的幸福呢", "蘭亭序", "流浪詩人", "時光機", "喬克叔叔", "稻香"
+        ]
+      },
+      {
+        album: "跨時代",
+        year: 2010,
+        tracks: [
+          "跨時代", "說了再見", "煙花易冷", "免費教學錄影帶", "好久不見",
+          "雨下一整晚", "嘻哈空姐", "我落淚·情緒零碎", "愛的飛行日記", "自導自演", "超人不會飛"
+        ]
+      },
+      {
+        album: "驚嘆號",
+        year: 2011,
+        tracks: [
+          "驚嘆號", "迷魂曲", "Mine Mine", "公主病", "你好嗎",
+          "療傷燒肉粽", "琴傷", "水手怕水", "世界未末日", "皮影戲", "超跑女神"
+        ]
+      },
+      {
+        album: "12新作",
+        year: 2012,
+        tracks: [
+          "四季列車", "手語", "公公偏頭痛", "明明就", "傻笑",
+          "比較大的大提琴", "愛你沒差", "紅塵客棧", "夢想啟動", "大笨鐘", "哪裡都是你", "烏克麗麗"
+        ]
+      },
+      {
+        album: "哎呦，不錯哦",
+        year: 2014,
+        tracks: [
+          "陽明山", "竊愛", "算什麼男人", "天涯過客", "怎麼了",
+          "一口氣全唸對", "我要夏天", "手寫的從前", "鞋子特大號", "聽爸爸的話", "美人魚", "聽見下雨的聲音"
+        ]
+      },
+      {
+        album: "周杰倫的床邊故事",
+        year: 2016,
+        tracks: [
+          "床邊故事", "說走就走", "一點點", "前世情人", "英雄",
+          "不該", "土耳其冰淇淋", "告白氣球", "Now You See Me", "愛情廢柴"
+        ]
+      },
+      {
+        album: "最偉大的作品",
+        year: 2022,
+        tracks: [
+          "Intro", "最偉大的作品", "還在流浪", "說好不哭", "紅顏如霜",
+          "不愛我就拉倒", "Mojito", "錯過的煙火", "等你下課", "粉色海洋", "倒影", "我是如此相信"
+        ]
+      },
+      {
+        album: "太陽之子",
+        year: 2026,
+        tracks: [
+          "太陽之子", "西西里", "那天下雨了", "湘女多情", "誰稀罕",
+          "七月的極光", "愛琴海", "I Do", "聖徒", "女兒殿下", "淘金小鎮", "鄉間的路", "聖誕星"
+        ]
+      }
     ];
 
     const manualSeeds = {
-      '晴天': 'DYptgVvkVLQ',
-      '七里香': 'Bbp9ZaJD_eA',
-      '稻香': 'sHD_z90ZKV0',
-      '夜曲': '6Q0Pd53mojY',
-      '青花瓷': 'Z8Mqw0b9ADs',
-      '不能說的祕密': 'uIWypArI73w',
-      '聽媽媽的話': '_B8RaLCNUZw',
-      '告白氣球': 'bu7nU9Mhpyo'
+      "晴天": "DYptgVvkVLQ",
+      "七里香": "Bbp9ZaJD_eA",
+      "稻香": "sHD_z90ZKV0",
+      "夜曲": "6Q0Pd53mojY",
+      "青花瓷": "Z8Mqw0b9ADs",
+      "聽媽媽的話": "_B8RaLCNUZw",
+      "告白氣球": "bu7nU9Mhpyo",
+      "Mojito": "-biOGdYiF-I",
+      "等你下課": "kfXdP7nZIiE",
+      "說好不哭": "HC6xx-GxlUY"
     };
 
-    const introDefaults = {
-      '晴天': 0, '七里香': 0, '稻香': 0, '夜曲': 0, '青花瓷': 0, '聽媽媽的話': 0, '告白氣球': 0,
-      '不能說的祕密': 0, '簡單愛': 0, '龍捲風': 0, '安靜': 0, '東風破': 0, '擱淺': 0, '楓': 0,
-      '彩虹': 0, '蒲公英的約定': 0, '說好的幸福呢': 0, '煙花易冷': 0, '明明就': 0, '手寫的從前': 0,
-      '最偉大的作品': 0, 'Mojito': 0, '等你下課': 0
-    };
+    const persistedMap = JSON.parse(localStorage.getItem("guess_song_links") || "{}");
+    const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
+    const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
+    const savedAlbumMode = localStorage.getItem("guess_song_album_mode") || "custom";
+    const highScores = JSON.parse(
+      localStorage.getItem("guess_song_high_scores") ||
+      "{\"intro\":0,\"interlude\":0,\"mixed\":0,\"endless\":0}"
+    );
 
-    const interludeDefaults = {
-      '晴天': 72, '七里香': 88, '稻香': 64, '夜曲': 79, '青花瓷': 70, '告白氣球': 53, '聽媽媽的話': 66,
-      '簡單愛': 56, '龍捲風': 80, '安靜': 69, '東風破': 61, '擱淺': 75, '楓': 68, '彩虹': 52,
-      '蒲公英的約定': 57, '說好的幸福呢': 73, '煙花易冷': 59, '明明就': 60, '手寫的從前': 76,
-      'Mojito': 58, '等你下課': 63, '最偉大的作品': 67
-    };
+    document.body.setAttribute("data-theme", savedTheme);
 
-    function normalizeTitle(str) {
-      return String(str || '')
-        .replace(/（.*?）/g, '')
-        .replace(/\(.*?\)/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
+    const songLibrary = albumData.flatMap(item =>
+      item.tracks.map(title => ({
+        title,
+        album: item.album,
+        year: item.year,
+        artist: "周杰倫",
+        youtubeId: persistedMap[title]?.youtubeId || manualSeeds[title] || "",
+        introStart: persistedMap[title]?.introStart ?? 0,
+        interludeStart: persistedMap[title]?.interludeStart ?? 60
+      }))
+    );
 
-    const persistedMap = JSON.parse(localStorage.getItem('jaySongLinks') || '{}');
-    const themeSaved = localStorage.getItem('jayTheme') || 'dark';
-    if (themeSaved === 'light') document.body.classList.add('light');
-
-    const songLibrary = albumData.flatMap(album => album.tracks.map(track => {
-      const cleanTitle = normalizeTitle(track);
-      return {
-        title: cleanTitle,
-        album: album.album,
-        year: album.year,
-        artist: '周杰倫',
-        youtubeId: persistedMap[cleanTitle]?.youtubeId || manualSeeds[cleanTitle] || '',
-        introStart: persistedMap[cleanTitle]?.introStart ?? introDefaults[cleanTitle] ?? 0,
-        interludeStart: persistedMap[cleanTitle]?.interludeStart ?? interludeDefaults[cleanTitle] ?? 60,
-      };
-    }));
-
-    const modes = [
-      { key: 'mc_intro', label: '選項前奏', desc: '聽前奏，從 4 個選項作答', inputType: 'multiple', clipType: 'intro' },
-      { key: 'text_intro', label: '打字前奏', desc: '聽前奏，直接輸入歌名', inputType: 'text', clipType: 'intro' },
-      { key: 'mc_interlude', label: '選項間奏', desc: '聽間奏，從 4 個選項作答', inputType: 'multiple', clipType: 'interlude' },
-      { key: 'text_interlude', label: '打字間奏', desc: '聽間奏，直接輸入歌名', inputType: 'text', clipType: 'interlude' }
-    ];
-
-    let selectedMode = modes[0];
     let selectedAlbums = new Set(albumData.map(a => a.album));
+    let answerMode = savedAnswerMode;
+    let albumMode = savedAlbumMode;
+    let gameMode = "intro";
     let gameQueue = [];
-    let currentIndex = -1;
+    let currentIndex = 0;
     let currentSong = null;
     let score = 0;
-    let answered = false;
-    let timer = null;
     let timeLeft = 0;
+    let timer = null;
+    let isMuted = false;
+    let isPaused = false;
+    let answered = false;
+    let currentClipType = "intro";
     let clipStopper = null;
     let player = null;
     let ytReady = false;
+    let usedAnswers = [];
+    let currentAlbumPool = [];
 
-    const $ = (id) => document.getElementById(id);
-    const modeGrid = $('modeGrid');
-    const albumChips = $('albumChips');
-    const songList = $('songList');
-    const manageList = $('manageList');
+    const $ = id => document.getElementById(id);
 
-    function onYouTubeIframeAPIReadyWrapper() {
+    function onYouTubeIframeAPIReady() {
       ytReady = true;
-      player = new YT.Player('ytPlayer', {
-        height: '1', width: '1',
-        playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1 },
-        events: { onReady: () => {} }
+      player = new YT.Player("yt", {
+        height: "200",
+        width: "320",
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1
+        },
+        events: {
+          onStateChange: e => {
+            const d = $("disc");
+            if (e.data === YT.PlayerState.PLAYING) d.classList.add("playing");
+            else d.classList.remove("playing");
+          }
+        }
       });
     }
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReadyWrapper;
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+    function updateHighScoreUI() {
+      ["intro", "interlude", "mixed", "endless"].forEach(k => {
+        $("hs_" + k).textContent = highScores[k] || 0;
+      });
+    }
+
+    function saveHighScore() {
+      if (score > (highScores[gameMode] || 0)) {
+        highScores[gameMode] = score;
+        localStorage.setItem("guess_song_high_scores", JSON.stringify(highScores));
+        updateHighScoreUI();
+      }
+    }
+
+    function renderSettingButtons() {
+      document.querySelectorAll("[data-theme-choice]").forEach(b => {
+        b.classList.toggle("active", b.dataset.themeChoice === document.body.getAttribute("data-theme"));
+      });
+
+      document.querySelectorAll("[data-answer-mode]").forEach(b => {
+        b.classList.toggle("active", b.dataset.answerMode === answerMode);
+      });
+
+      document.querySelectorAll("[data-album-mode]").forEach(b => {
+        b.classList.toggle("active", b.dataset.albumMode === albumMode);
+      });
+
+      $("customAlbumGroup").classList.toggle("hidden", albumMode !== "custom");
+    }
+
+    function renderAlbumGrid() {
+      $("albumGrid").innerHTML = "";
+      albumData.forEach(i => {
+        const b = document.createElement("button");
+        b.className = "ab" + (selectedAlbums.has(i.album) ? " active" : "");
+        b.textContent = i.album;
+        b.onclick = () => {
+          if (selectedAlbums.has(i.album)) selectedAlbums.delete(i.album);
+          else selectedAlbums.add(i.album);
+          if (!selectedAlbums.size) selectedAlbums.add(i.album);
+          renderAlbumGrid();
+        };
+        $("albumGrid").appendChild(b);
+      });
+    }
+
+    function extractYouTubeId(input) {
+      const s = String(input || "").trim();
+      if (!s) return "";
+
+      const a = s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+      const b = s.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+      const c = s.match(/embed\/([A-Za-z0-9_-]{11})/);
+
+      if (a) return a[1];
+      if (b) return b[1];
+      if (c) return c[1];
+      if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+      return "";
+    }
 
     function saveSongMap() {
-      const map = {};
-      songLibrary.forEach(song => {
-        if (song.youtubeId || song.introStart || song.interludeStart) {
-          map[song.title] = {
-            youtubeId: song.youtubeId,
-            introStart: Number(song.introStart) || 0,
-            interludeStart: Number(song.interludeStart) || 60
+      const m = {};
+      songLibrary.forEach(s => {
+        if (s.youtubeId || s.introStart || s.interludeStart) {
+          m[s.title] = {
+            youtubeId: s.youtubeId,
+            introStart: Number(s.introStart) || 0,
+            interludeStart: Number(s.interludeStart) || 60
           };
         }
       });
-      localStorage.setItem('jaySongLinks', JSON.stringify(map));
-    }
-
-    function extractYouTubeId(url) {
-      const str = String(url || '').trim();
-      if (!str) return '';
-      const short = str.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
-      if (short) return short[1];
-      const watch = str.match(/[?&]v=([A-Za-z0-9_-]{11})/);
-      if (watch) return watch[1];
-      const embed = str.match(/embed\/([A-Za-z0-9_-]{11})/);
-      if (embed) return embed[1];
-      return /^[A-Za-z0-9_-]{11}$/.test(str) ? str : '';
-    }
-
-    function updateThemeBtn() {
-      $('themeBtn').textContent = document.body.classList.contains('light') ? '☀️ 亮色' : '🌙 暗色';
-    }
-
-    function renderModes() {
-      modeGrid.innerHTML = '';
-      modes.forEach(mode => {
-        const btn = document.createElement('button');
-        btn.className = 'mode-btn' + (mode.key === selectedMode.key ? ' active' : '');
-        btn.innerHTML = `<span class="mode-name">${mode.label}</span><span class="mode-desc">${mode.desc}</span>`;
-        btn.onclick = () => { selectedMode = mode; updateLabels(); renderModes(); renderAnswerMode(); };
-        modeGrid.appendChild(btn);
-      });
-    }
-
-    function renderAlbumChips() {
-      albumChips.innerHTML = '';
-      albumData.forEach(item => {
-        const chip = document.createElement('button');
-        chip.className = 'chip' + (selectedAlbums.has(item.album) ? ' active' : '');
-        chip.textContent = `${item.album}`;
-        chip.onclick = () => {
-          if (selectedAlbums.has(item.album)) selectedAlbums.delete(item.album); else selectedAlbums.add(item.album);
-          if (selectedAlbums.size === 0) selectedAlbums.add(item.album);
-          renderAlbumChips(); renderLibrary(); updateAlbumNote();
-        };
-        albumChips.appendChild(chip);
-      });
-    }
-
-    function getFilteredSongs() {
-      const avail = $('availabilityFilter').value;
-      return songLibrary.filter(song => {
-        const albumOK = selectedAlbums.has(song.album);
-        const availOK = avail === 'all' ? true : avail === 'ready' ? !!song.youtubeId : !song.youtubeId;
-        return albumOK && availOK;
-      });
-    }
-
-    function updateAlbumNote() {
-      const filtered = getFilteredSongs();
-      $('albumCountNote').textContent = `${selectedAlbums.size} 張專輯｜${filtered.length} 首歌`;
-      $('readyCountPill').textContent = `已綁定：${songLibrary.filter(s => s.youtubeId).length}`;
-    }
-
-    function renderLibrary() {
-      const filtered = getFilteredSongs();
-      songList.innerHTML = filtered.map(song => `
-        <div class="song-item">
-          <div>
-            <b>${song.title}</b>
-            <div class="song-meta">${song.album} · ${song.year} · 前奏 ${song.introStart}s · 間奏 ${song.interludeStart}s</div>
-          </div>
-          <div class="song-badge">${song.youtubeId ? '已綁定' : '未綁定'}</div>
-        </div>
-      `).join('');
+      localStorage.setItem("guess_song_links", JSON.stringify(m));
     }
 
     function renderManageList() {
-      const missingFirst = [...songLibrary].sort((a,b) => Number(!!a.youtubeId) - Number(!!b.youtubeId) || a.year - b.year);
-      manageList.innerHTML = missingFirst.map(song => `
-        <div class="manage-item">
-          <h4>${song.title}</h4>
-          <div class="tiny">${song.album} · ${song.year} · 目前ID：${song.youtubeId || '尚未設定'}</div>
-          <div class="inline-row">
-            <input data-role="url" data-title="${song.title}" type="text" placeholder="貼上 YouTube / youtu.be / 11碼ID" value="${song.youtubeId || ''}" />
-            <button class="secondary small-btn" data-role="save" data-title="${song.title}">存檔</button>
-          </div>
-          <div class="inline-row">
-            <input data-role="intro" data-title="${song.title}" type="number" min="0" placeholder="前奏秒數" value="${song.introStart}" />
-            <input data-role="interlude" data-title="${song.title}" type="number" min="0" placeholder="間奏秒數" value="${song.interludeStart}" />
-          </div>
-          <div class="tiny" style="margin-top:8px;">建議搜尋：YouTube / YouTube Music 搜「周杰倫 ${song.title}」後，貼上對應頁面網址。</div>
-        </div>
-      `).join('');
+      const search = ($("managerSearchInput").value || "").trim().toLowerCase();
+      const albumKeyword = ($("managerAlbumFilter").value || "").trim().toLowerCase();
 
-      manageList.querySelectorAll('[data-role="save"]').forEach(btn => {
-        btn.onclick = () => {
-          const title = btn.dataset.title;
-          const card = btn.closest('.manage-item');
-          const urlVal = card.querySelector('[data-role="url"]').value;
-          const introVal = Number(card.querySelector('[data-role="intro"]').value || 0);
-          const interVal = Number(card.querySelector('[data-role="interlude"]').value || 60);
-          const id = extractYouTubeId(urlVal);
-          const target = songLibrary.find(s => s.title === title);
-          if (!target) return;
-          if (urlVal && !id) {
-            alert('這個網址目前抓不到 YouTube 影片 ID，請改貼一般 YouTube 影片網址或 11 碼 ID。');
+      const rows = songLibrary.filter(s => {
+        return (!search || s.title.toLowerCase().includes(search)) &&
+               (!albumKeyword || s.album.toLowerCase().includes(albumKeyword));
+      });
+
+      if (!rows.length) {
+        $("manageBox").innerHTML = "<div class='empty'>沒有符合條件的歌曲</div>";
+        return;
+      }
+
+      $("manageBox").innerHTML = rows.map(s => `
+        <div class="mi">
+          <div class="mh">
+            <h4>${s.title}</h4>
+            <div class="mbadge">${s.album}</div>
+          </div>
+          <div class="tiny">ID：${s.youtubeId || "未設定"}</div>
+          <div class="ans" style="margin-top:8px">
+            <input data-role="id" data-title="${s.title}" type="text" value="${s.youtubeId || ""}" placeholder="貼 YouTube 連結或 11 碼 ID" />
+            <button class="mini" data-role="save" data-title="${s.title}">存檔</button>
+          </div>
+          <div class="mgrid">
+            <input data-role="intro" data-title="${s.title}" type="number" min="0" value="${s.introStart}" placeholder="前奏秒數" />
+            <input data-role="interlude" data-title="${s.title}" type="number" min="0" value="${s.interludeStart}" placeholder="間奏秒數" />
+            <div class="tiny">${s.year}</div>
+          </div>
+          <div class="ma">
+            <button class="mini" data-role="preview-intro" data-title="${s.title}">試播前奏</button>
+            <button class="mini" data-role="preview-interlude" data-title="${s.title}">試播間奏</button>
+          </div>
+        </div>
+      `).join("");
+
+      $("manageBox").querySelectorAll("[data-role='save']").forEach(b => {
+        b.onclick = () => {
+          const t = b.dataset.title;
+          const it = b.closest(".mi");
+          const idInput = it.querySelector("[data-role='id']").value;
+          const introVal = Number(it.querySelector("[data-role='intro']").value || 0);
+          const interVal = Number(it.querySelector("[data-role='interlude']").value || 60);
+          const youtubeId = extractYouTubeId(idInput);
+
+          if (idInput && !youtubeId) {
+            alert("這個網址目前抓不到可用的 YouTube 影片 ID。");
             return;
           }
-          target.youtubeId = id;
+
+          const target = songLibrary.find(s => s.title === t);
+          if (youtubeId) target.youtubeId = youtubeId;
           target.introStart = introVal;
           target.interludeStart = interVal;
+
           saveSongMap();
-          renderManageList(); renderLibrary(); updateAlbumNote();
+          renderManageList();
         };
+      });
+
+      $("manageBox").querySelectorAll("[data-role='preview-intro']").forEach(b => {
+        b.onclick = () => previewSongClip(b.dataset.title, "intro");
+      });
+
+      $("manageBox").querySelectorAll("[data-role='preview-interlude']").forEach(b => {
+        b.onclick = () => previewSongClip(b.dataset.title, "interlude");
       });
     }
 
-    function updateLabels() {
-      $('modeLabel').textContent = selectedMode.label;
-      $('clipTypePill').textContent = `片段：${selectedMode.clipType === 'intro' ? '前奏' : '間奏'}`;
-      $('qLabel').textContent = gameQueue.length ? `${Math.max(currentIndex + 1, 0)}/${gameQueue.length}` : '0/0';
-      $('scoreLabel').textContent = score;
+    function openSettings() {
+      $("settingsModal").classList.add("show");
     }
 
-    function renderAnswerMode() {
-      const useText = selectedMode.inputType === 'text';
-      $('typingBox').classList.toggle('hidden', !useText);
-      $('optionsBox').classList.toggle('hidden', useText);
-      $('resultBox').classList.add('hidden');
-      $('resultBox').textContent = '';
+    function closeSettings() {
+      $("settingsModal").classList.remove("show");
+    }
+
+    function openManager() {
+      renderManageList();
+      $("managerModal").classList.add("show");
+    }
+
+    function closeManager() {
+      $("managerModal").classList.remove("show");
+    }
+
+    function clearManagerFilters() {
+      $("managerSearchInput").value = "";
+      $("managerAlbumFilter").value = "";
+      renderManageList();
+    }
+
+    function fillManagerAlbumFromSelected() {
+      const n = [...selectedAlbums];
+      $("managerAlbumFilter").value = n.length === 1 ? n[0] : "";
+      renderManageList();
+    }
+
+    function selectAllAlbums() {
+      selectedAlbums = new Set(albumData.map(a => a.album));
+      renderAlbumGrid();
+    }
+
+    function selectRandomAlbum() {
+      const pick = albumData[Math.floor(Math.random() * albumData.length)].album;
+      selectedAlbums = new Set([pick]);
+      renderAlbumGrid();
     }
 
     function shuffle(arr) {
-      const copy = [...arr];
-      for (let i = copy.length - 1; i > 0; i--) {
+      const c = [...arr];
+      for (let i = c.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+        [c[i], c[j]] = [c[j], c[i]];
       }
-      return copy;
+      return c;
     }
 
-    function sampleSongs() {
-      const filtered = getFilteredSongs();
-      const count = Math.min(Number($('questionCount').value || 10), filtered.length);
-      return shuffle(filtered).slice(0, count);
+    function chooseAlbumsForGame() {
+      const all = albumData.map(a => a.album);
+
+      if (albumMode === "all") return all;
+      if (albumMode === "single_random") {
+        return [all[Math.floor(Math.random() * all.length)]];
+      }
+      if (albumMode === "multi_random") {
+        const s = shuffle(all);
+        const count = Math.max(
+          2,
+          Math.min(all.length, Math.floor(Math.random() * Math.min(5, all.length - 1)) + 2)
+        );
+        return s.slice(0, count);
+      }
+
+      return [...selectedAlbums];
     }
 
-    function stopClip() {
-      if (clipStopper) clearTimeout(clipStopper);
-      try { if (player && player.stopVideo) player.stopVideo(); } catch(e) {}
+    function getFilteredSongsForCurrentGame() {
+      return songLibrary.filter(s => currentAlbumPool.includes(s.album) && s.youtubeId);
     }
 
-    function playCurrentClip(song) {
-      if (!song) return;
-      if (!song.youtubeId) {
-        showResult('這首歌還沒有綁定可播放的 YouTube 影片 ID。請到「管理 YouTube 連結」補上。', false);
+    function updateHeaderForScreen(isGame) {
+      $("pauseBtn").style.display = isGame ? "inline-block" : "none";
+      $("restartBtn").style.display = isGame ? "inline-block" : "none";
+    }
+
+    function setActiveScreen(id) {
+      ["home", "game"].forEach(k => $(k).classList.remove("active"));
+      $(id).classList.add("active");
+      updateHeaderForScreen(id === "game");
+    }
+
+    function buildQuestionQueue(pool, isEndless) {
+      const n = Math.max(1, Number($("roundCountInput").value || 10));
+
+      if (!isEndless) {
+        return shuffle(pool).slice(0, Math.min(n, pool.length));
+      }
+
+      const q = [];
+      for (let i = 0; i < n; i++) {
+        q.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      return q;
+    }
+
+    function startGame(mode) {
+      currentAlbumPool = chooseAlbumsForGame();
+      const pool = getFilteredSongsForCurrentGame();
+
+      if (!pool.length) {
+        alert("目前設定的專輯範圍沒有已綁定可播放歌曲。請先到設定中選擇專輯或補上歌曲 ID。");
         return;
       }
-      if (!ytReady || !player || !player.loadVideoById) {
-        showResult('YouTube 播放器還沒準備好，請再按一次播放。', false);
+
+      gameMode = mode;
+      score = 0;
+      currentIndex = 0;
+      answered = false;
+      usedAnswers = [];
+      gameQueue = buildQuestionQueue(pool, mode === "endless");
+
+      $("score").textContent = score;
+      $("result").className = "res hidden";
+      $("result").innerHTML = "";
+
+      $("modeDisplay").textContent =
+        mode === "intro"
+          ? "🎵 前奏模式"
+          : mode === "interlude"
+          ? "🎼 間奏模式"
+          : mode === "mixed"
+          ? "🔥 混合模式"
+          : "♾️ 無限模式";
+
+      setActiveScreen("game");
+      startTimer();
+      loadQuestion();
+    }
+
+    function restartCurrentGame() {
+      stopTimer();
+      stopPlayback();
+      startGame(gameMode);
+    }
+
+    function quitToHome() {
+      stopTimer();
+      stopPlayback();
+      isPaused = false;
+      $("pauseOverlay").classList.remove("show");
+      $("gameOver").classList.remove("show");
+      setActiveScreen("home");
+    }
+
+    function pickClipType() {
+      if (gameMode === "intro") return "intro";
+      if (gameMode === "interlude") return "interlude";
+      return Math.random() < 0.5 ? "intro" : "interlude";
+    }
+
+    function loadQuestion() {
+      if (currentIndex >= gameQueue.length) {
+        endGame();
         return;
       }
-      const startAt = selectedMode.clipType === 'intro' ? Number(song.introStart || 0) : Number(song.interludeStart || 0);
-      const clipLength = Math.max(2, Number($('clipLength').value || 6));
-      $('playerWrap').classList.remove('hidden');
-      stopClip();
+
+      currentSong = gameQueue[currentIndex];
+      currentClipType = pickClipType();
+      answered = false;
+
+      $("question").textContent =
+        currentClipType === "intro"
+          ? "請聽前奏片段，猜出歌名。"
+          : "請聽間奏片段，猜出歌名。";
+
+      const roundLabel =
+        (gameMode === "endless" ? "第 " : "第 ") +
+        (currentIndex + 1) +
+        " / " +
+        gameQueue.length +
+        (gameMode === "endless" ? " 回合" : " 題");
+
+      const albumLabel = albumMode === "custom" ? currentSong.album : "隨機專輯";
+      $("meta").textContent = `${albumLabel} · ${roundLabel}`;
+
+      $("answerInput").value = "";
+      renderAnswerArea();
+      replayClip();
+    }
+
+    function renderAnswerArea() {
+      $("result").className = "res hidden";
+      $("result").innerHTML = "";
+
+      if (answerMode === "multiple") {
+        $("typing").classList.add("hidden");
+        $("options").classList.remove("hidden");
+
+        const pool = getFilteredSongsForCurrentGame();
+        const candidates = shuffle([
+          currentSong,
+          ...shuffle(pool.filter(s => s.title !== currentSong.title)).slice(0, 3)
+        ]);
+
+        $("options").innerHTML = "";
+        candidates.forEach(song => {
+          const b = document.createElement("button");
+          b.className = "opt";
+          b.textContent = song.title;
+          b.onclick = () => checkAnswer(song.title === currentSong.title);
+          $("options").appendChild(b);
+        });
+      } else {
+        $("options").classList.add("hidden");
+        $("typing").classList.remove("hidden");
+      }
+    }
+
+    function submitTypedAnswer() {
+      if (!currentSong || answered) return;
+      const val = $("answerInput").value.trim().replace(/\s+/g, "");
+      const ans = currentSong.title.replace(/\s+/g, "");
+      checkAnswer(val === ans);
+    }
+
+    function playPointEffect(delta) {
+      const fx = $("floatFx");
+      fx.textContent = (delta > 0 ? "+" : "") + delta;
+      fx.style.color = delta > 0 ? "#4ade80" : "#ff7a90";
+      fx.classList.remove("show");
+      void fx.offsetWidth;
+      fx.classList.add("show");
+      playTone(delta > 0 ? 880 : 220, delta > 0 ? 0.12 : 0.18);
+    }
+
+    function playTone(freq, dur) {
       try {
-        player.loadVideoById({ videoId: song.youtubeId, startSeconds: startAt });
-        clipStopper = setTimeout(() => { try { player.stopVideo(); } catch(e) {} }, clipLength * 1000);
-      } catch (e) {
-        showResult('影片播放失敗，請檢查這首歌的 YouTube ID。', false);
-      }
+        const ac = window.__ac || (window.__ac = new (window.AudioContext || window.webkitAudioContext)());
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+
+        o.frequency.value = freq;
+        o.type = "sine";
+        g.gain.value = 0.05;
+
+        o.connect(g);
+        g.connect(ac.destination);
+
+        o.start();
+        o.stop(ac.currentTime + dur);
+      } catch (e) {}
     }
 
-    function showResult(msg, good) {
-      const box = $('resultBox');
-      box.classList.remove('hidden', 'good', 'bad');
-      box.classList.add(good ? 'good' : 'bad');
-      box.innerHTML = msg;
+    function applyScore(delta) {
+      score += delta;
+      $("score").textContent = score;
+      playPointEffect(delta);
+    }
+
+    function checkAnswer(correct) {
+      if (answered || isPaused) return;
+
+      answered = true;
+      stopPlayback();
+
+      if (correct) {
+        applyScore(1);
+      }
+
+      usedAnswers.push({
+        song: currentSong,
+        clipType: currentClipType,
+        correct
+      });
+
+      const box = $("result");
+      box.className = "res " + (correct ? "good" : "bad");
+      box.innerHTML =
+        `${correct ? "✅ 答對了！" : "❌ 答錯了。"}<br>` +
+        `<b>答案：</b>${currentSong.title}<br>` +
+        `<span style="color:var(--muted);font-size:13px;">` +
+        `${albumMode === "custom" ? currentSong.album : "隨機專輯"} · ${currentSong.year}` +
+        `</span>`;
+
+      setTimeout(() => {
+        currentIndex += 1;
+        loadQuestion();
+      }, 1100);
+    }
+
+    function skipQuestion() {
+      if (answered) return;
+
+      stopPlayback();
+      answered = true;
+      applyScore(-1);
+
+      usedAnswers.push({
+        song: currentSong,
+        clipType: currentClipType,
+        correct: false,
+        skipped: true
+      });
+
+      const box = $("result");
+      box.className = "res bad";
+      box.innerHTML = `⏭️ 已跳過（-1）<br><b>答案：</b>${currentSong.title}`;
+
+      setTimeout(() => {
+        currentIndex += 1;
+        loadQuestion();
+      }, 900);
     }
 
     function startTimer() {
-      clearInterval(timer);
-      timeLeft = Math.max(5, Number($('timeLimit').value || 15));
-      $('timerLabel').textContent = timeLeft;
+      stopTimer();
+      timeLeft = Math.max(10, Number($("timeLimitInput").value || 90));
+      $("time").textContent = timeLeft;
+      updateTimeDanger();
+
       timer = setInterval(() => {
+        if (isPaused) return;
+
         timeLeft -= 1;
-        $('timerLabel').textContent = timeLeft;
+        $("time").textContent = Math.max(0, timeLeft);
+        updateTimeDanger();
+
         if (timeLeft <= 0) {
-          clearInterval(timer);
-          if (!answered) revealAnswer(false, '時間到！');
+          endGame();
         }
       }, 1000);
     }
 
-    function revealAnswer(correct, prefix = '') {
-      answered = true;
+    function updateTimeDanger() {
+      $("timePill").classList.toggle("danger", timeLeft <= 3);
+    }
+
+    function stopTimer() {
       clearInterval(timer);
-      stopClip();
-      if (correct) score += 1;
-      updateLabels();
-      showResult(`${prefix ? prefix + '<br>' : ''}${correct ? '✅ 答對了！' : '❌ 答錯了。'}<br><b>答案：</b>${currentSong.title}<br><span class="tiny">${currentSong.album} · ${currentSong.year}</span>`, correct);
     }
 
-    function buildOptions(correctSong) {
-      const pool = getFilteredSongs().filter(s => s.title !== correctSong.title);
-      return shuffle([correctSong, ...shuffle(pool).slice(0, 3)]);
+    function endGame() {
+      stopTimer();
+      stopPlayback();
+      saveHighScore();
+
+      $("finalScore").textContent = score;
+      $("finalTotal").textContent = gameQueue.length;
+      $("endTitle").textContent = "遊戲結束！";
+
+      const wrap = $("answersWrap");
+      wrap.classList.remove("hidden");
+      wrap.innerHTML = usedAnswers.length
+        ? usedAnswers
+            .map((it, i) => {
+              return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${it.correct ? "答對" : it.skipped ? "跳過" : "答錯"}</div>`;
+            })
+            .join("")
+        : "<div>本局沒有題目紀錄</div>";
+
+      $("gameOver").classList.add("show");
     }
 
-    function buildQuestion() {
-      if (currentIndex >= gameQueue.length) {
-        $('questionText').innerHTML = `🎉 遊戲結束！總分 <b>${score}</b> / ${gameQueue.length}`;
-        $('optionsBox').innerHTML = '';
-        $('typingBox').classList.add('hidden');
-        $('timerLabel').textContent = '--';
-        stopClip();
+    function togglePause() {
+      if (!$("game").classList.contains("active")) return;
+
+      isPaused = !isPaused;
+      $("pauseOverlay").classList.toggle("show", isPaused);
+
+      if (isPaused) stopPlayback();
+    }
+
+    function stopPlayback() {
+      clearTimeout(clipStopper);
+      $("disc").classList.remove("playing");
+
+      try {
+        if (player && player.stopVideo) player.stopVideo();
+      } catch (e) {}
+    }
+
+    function playClipForSong(song, clipType) {
+      if (!song || !song.youtubeId || isPaused || !ytReady || !player || !player.loadVideoById) {
         return;
       }
-      currentSong = gameQueue[currentIndex];
-      answered = false;
-      updateLabels(); renderAnswerMode();
-      $('questionText').textContent = selectedMode.clipType === 'intro' ? '請聽前奏片段，猜出歌名。' : '請聽間奏片段，猜出歌名。';
-      if (selectedMode.inputType === 'multiple') {
-        const opts = buildOptions(currentSong);
-        $('optionsBox').innerHTML = '';
-        opts.forEach(song => {
-          const btn = document.createElement('button');
-          btn.className = 'option-btn';
-          btn.textContent = song.title;
-          btn.onclick = () => { if (!answered) revealAnswer(song.title === currentSong.title); };
-          $('optionsBox').appendChild(btn);
+
+      stopPlayback();
+
+      const startAt =
+        clipType === "intro"
+          ? Number(song.introStart || 0)
+          : Number(song.interludeStart || 0);
+
+      const length = Math.max(2, Number($("clipLengthInput").value || 6));
+
+      try {
+        player.loadVideoById({
+          videoId: song.youtubeId,
+          startSeconds: startAt
         });
-      } else {
-        $('answerInput').value = '';
+
+        if (!isMuted && player.unMute) player.unMute();
+        if (player.setVolume) player.setVolume(100);
+        if (isMuted && player.mute) player.mute();
+
+        clipStopper = setTimeout(() => {
+          try {
+            player.stopVideo();
+          } catch (e) {}
+          $("disc").classList.remove("playing");
+        }, (length + 0.35) * 1000);
+      } catch (e) {
+        console.error(e);
       }
-      playCurrentClip(currentSong);
-      startTimer();
     }
 
-    function startGame() {
-      const filtered = getFilteredSongs();
-      if (!filtered.length) {
-        alert('目前篩選條件下沒有可用歌曲。');
+    function replayClip() {
+      if (!currentSong || answered) return;
+      applyScore(-1);
+      playClipForSong(currentSong, currentClipType);
+    }
+
+    function previewSongClip(title, clipType) {
+      const rows = [...$("manageBox").querySelectorAll(".mi")];
+      const item = rows.find(el => el.querySelector("[data-role='save']")?.dataset.title === title);
+      if (!item) return;
+
+      const youtubeId = extractYouTubeId(item.querySelector("[data-role='id']").value);
+      if (!youtubeId) {
+        alert("請先填入正確的 YouTube 連結或 11 碼 ID。");
         return;
       }
-      gameQueue = sampleSongs();
-      currentIndex = 0;
-      score = 0;
-      updateLabels();
-      buildQuestion();
+
+      const tempSong = {
+        youtubeId,
+        introStart: Number(item.querySelector("[data-role='intro']").value || 0),
+        interludeStart: Number(item.querySelector("[data-role='interlude']").value || 60)
+      };
+
+      playClipForSong(tempSong, clipType);
     }
 
-    $('startBtn').onclick = startGame;
-    $('nextBtn').onclick = () => { if (!gameQueue.length) return; currentIndex += 1; buildQuestion(); };
-    $('replayBtn').onclick = () => playCurrentClip(currentSong);
-    $('showAnswerBtn').onclick = () => { if (currentSong && !answered) revealAnswer(false, '你選擇直接看答案。'); };
-    $('playBtn').onclick = () => playCurrentClip(currentSong);
-    $('submitTextBtn').onclick = () => {
-      if (!currentSong || answered) return;
-      const val = $('answerInput').value.trim().replace(/\s+/g, '');
-      const ans = currentSong.title.replace(/\s+/g, '');
-      revealAnswer(val === ans);
-    };
-    $('answerInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('submitTextBtn').click(); });
+    function importCsvText(raw) {
+      const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      let updated = 0;
+      let skipped = 0;
 
-    $('themeBtn').onclick = () => {
-      document.body.classList.toggle('light');
-      localStorage.setItem('jayTheme', document.body.classList.contains('light') ? 'light' : 'dark');
-      updateThemeBtn();
-    };
+      lines.forEach((line, index) => {
+        const parts = line.split(",").map(s => s.trim());
 
-    $('allAlbumsBtn').onclick = () => {
-      selectedAlbums = new Set(albumData.map(a => a.album));
-      renderAlbumChips(); renderLibrary(); updateAlbumNote();
-    };
+        if (index === 0 && parts[0] === "歌名") return;
+        if (parts.length < 2) {
+          skipped += 1;
+          return;
+        }
 
-    $('randomAlbumBtn').onclick = () => {
-      const pick = albumData[Math.floor(Math.random() * albumData.length)].album;
-      selectedAlbums = new Set([pick]);
-      renderAlbumChips(); renderLibrary(); updateAlbumNote();
-    };
+        const [title, idOrUrl, introRaw, interludeRaw] = parts;
+        const target = songLibrary.find(s => s.title === title);
 
-    $('toggleManageBtn').onclick = () => $('managePanel').classList.toggle('hidden');
-    $('availabilityFilter').onchange = () => { renderLibrary(); updateAlbumNote(); };
+        if (!target) {
+          skipped += 1;
+          return;
+        }
 
-    renderModes();
-    renderAlbumChips();
-    renderLibrary();
+        const youtubeId = extractYouTubeId(idOrUrl);
+        if (idOrUrl && !youtubeId) {
+          skipped += 1;
+          return;
+        }
+
+        if (youtubeId) target.youtubeId = youtubeId;
+        if (introRaw !== undefined && introRaw !== "") target.introStart = Number(introRaw) || 0;
+        if (interludeRaw !== undefined && interludeRaw !== "") target.interludeStart = Number(interludeRaw) || 60;
+
+        updated += 1;
+      });
+
+      saveSongMap();
+      renderManageList();
+      return { updated, skipped };
+    }
+
+    function importCsvFile() {
+      const file = $("csvFileInput").files?.[0];
+      if (!file) {
+        alert("請先選擇 CSV 檔案。");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const buffer = reader.result;
+          let text = "";
+
+          try {
+            text = new TextDecoder("utf-8").decode(buffer);
+            if (text.includes("�")) {
+              text = new TextDecoder("big5").decode(buffer);
+            }
+          } catch {
+            text = new TextDecoder("big5").decode(buffer);
+          }
+
+          const result = importCsvText(text);
+          $("csvFileStatus").textContent = `已匯入 ${result.updated} 筆，略過 ${result.skipped} 筆：${file.name}`;
+        } catch (err) {
+          console.error(err);
+          alert("讀取 CSV 檔案失敗。");
+        }
+      };
+
+      reader.onerror = () => {
+        alert("讀取 CSV 檔案失敗。");
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportCsvData() {
+      const rows = songLibrary
+        .filter(song => song.youtubeId)
+        .map(song => `${song.title},${song.youtubeId},${song.introStart},${song.interludeStart}`);
+
+      const csv = rows.join("\n");
+      const blob = new Blob(["\ufeff" + csv], {
+        type: "text/csv;charset=utf-8;"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "guess-song-data.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      $("csvFileStatus").textContent = rows.length
+        ? "已匯出目前資料為 guess-song-data.csv"
+        : "目前沒有可匯出的資料";
+    }
+
+    $("settingsBtn").addEventListener("click", openSettings);
+
+    $("themeBtn").addEventListener("click", () => {
+      const next = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.body.setAttribute("data-theme", next);
+      localStorage.setItem("guess_song_theme", next);
+      renderSettingButtons();
+    });
+
+    $("muteBtn").addEventListener("click", e => {
+      isMuted = !isMuted;
+      e.target.textContent = isMuted ? "🔇" : "🔊";
+
+      try {
+        if (player) {
+          if (isMuted && player.mute) player.mute();
+          if (!isMuted && player.unMute) player.unMute();
+        }
+      } catch (err) {}
+    });
+
+    $("pauseBtn").addEventListener("click", togglePause);
+    $("restartBtn").addEventListener("click", restartCurrentGame);
+
+    $("answerInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") submitTypedAnswer();
+    });
+
+    $("managerSearchInput").addEventListener("input", renderManageList);
+    $("managerAlbumFilter").addEventListener("input", renderManageList);
+
+    $("csvFileInput").addEventListener("change", () => {
+      const file = $("csvFileInput").files?.[0];
+      $("csvFileStatus").textContent = file ? `已選擇：${file.name}` : "尚未選擇檔案";
+    });
+
+    document.querySelectorAll("[data-theme-choice]").forEach(b => {
+      b.addEventListener("click", () => {
+        const theme = b.dataset.themeChoice;
+        document.body.setAttribute("data-theme", theme);
+        localStorage.setItem("guess_song_theme", theme);
+        renderSettingButtons();
+      });
+    });
+
+    document.querySelectorAll("[data-answer-mode]").forEach(b => {
+      b.addEventListener("click", () => {
+        answerMode = b.dataset.answerMode;
+        localStorage.setItem("guess_song_answer_mode", answerMode);
+        renderSettingButtons();
+      });
+    });
+
+    document.querySelectorAll("[data-album-mode]").forEach(b => {
+      b.addEventListener("click", () => {
+        albumMode = b.dataset.albumMode;
+        localStorage.setItem("guess_song_album_mode", albumMode);
+        renderSettingButtons();
+      });
+    });
+
+    renderAlbumGrid();
+    renderSettingButtons();
     renderManageList();
-    updateAlbumNote();
-    updateLabels();
-    renderAnswerMode();
-    updateThemeBtn();
+    updateHighScoreUI();
   </script>
 </body>
 </html>
