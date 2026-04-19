@@ -970,6 +970,7 @@
     let currentAlbumPool = [];
     let adModeOpen = false;
     let adUsedThisQuestion = false;
+    let pointFxTimer = null;
 
     const $ = id => document.getElementById(id);
 
@@ -1348,6 +1349,7 @@
     }
 
     function loadQuestion() {
+      hidePointEffect();
       const pool = getFilteredSongsForCurrentGame();
 
       if (gameMode !== "endless" && currentIndex >= gameQueue.length) {
@@ -1423,11 +1425,21 @@
 
     function playPointEffect(delta) {
       const fx = $("floatFx");
+      clearTimeout(pointFxTimer);
+
       fx.textContent = (delta > 0 ? "+" : "") + delta;
       fx.style.color = delta > 0 ? "#4ade80" : "#ff7a90";
       fx.classList.remove("show");
+      fx.style.opacity = "0";
       void fx.offsetWidth;
       fx.classList.add("show");
+      fx.style.opacity = "1";
+
+      pointFxTimer = setTimeout(() => {
+        fx.classList.remove("show");
+        fx.style.opacity = "0";
+      }, 900);
+
       playTone(delta > 0 ? 880 : 220, delta > 0 ? 0.12 : 0.18);
     }
 
@@ -1653,7 +1665,7 @@
       $("disc").classList.remove("playing");
 
       try {
-        if (player && player.stopVideo) player.stopVideo();
+        if (player && player.pauseVideo) player.pauseVideo();
       } catch (e) {}
     }
 
@@ -1662,7 +1674,8 @@
         return;
       }
 
-      stopPlayback();
+      clearTimeout(clipStopper);
+      $("disc").classList.remove("playing");
 
       const startAt =
         clipType === "intro"
@@ -1682,7 +1695,9 @@
         if (isMuted && player.mute) player.mute();
 
         clipStopper = setTimeout(() => {
-          try { player.stopVideo(); } catch (e) {}
+          try {
+            if (player.pauseVideo) player.pauseVideo();
+          } catch (e) {}
           $("disc").classList.remove("playing");
         }, (length + 0.35) * 1000);
       } catch (e) {
@@ -1692,8 +1707,41 @@
 
     function replayClip() {
       if (!currentSong || answered) return;
+
       applyScore(-1);
-      playClipForSong(currentSong, currentClipType);
+
+      const startAt =
+        currentClipType === "intro"
+          ? Number(currentSong.introStart || 0)
+          : Number(currentSong.interludeStart || 0);
+
+      const length = Math.max(2, Number($("clipLengthInput").value || 6));
+
+      clearTimeout(clipStopper);
+
+      try {
+        if (player && player.getVideoData && player.getVideoData().video_id === currentSong.youtubeId) {
+          if (player.seekTo) player.seekTo(startAt, true);
+          if (player.playVideo) player.playVideo();
+        } else {
+          playClipForSong(currentSong, currentClipType);
+          return;
+        }
+
+        if (!isMuted && player.unMute) player.unMute();
+        if (player.setVolume) player.setVolume(100);
+        if (isMuted && player.mute) player.mute();
+
+        clipStopper = setTimeout(() => {
+          try {
+            if (player.pauseVideo) player.pauseVideo();
+          } catch (e) {}
+          $("disc").classList.remove("playing");
+        }, (length + 0.35) * 1000);
+      } catch (e) {
+        console.error(e);
+        playClipForSong(currentSong, currentClipType);
+      }
     }
 
     function autoPlayCurrentClip() {
@@ -1972,6 +2020,7 @@
     });
 
     function hidePointEffect() {
+      clearTimeout(pointFxTimer);
       $("floatFx").classList.remove("show");
       $("floatFx").style.opacity = "0";
     }
