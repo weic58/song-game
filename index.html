@@ -328,7 +328,7 @@
     .wrap {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      min-height: 100%;
       padding: 14px 16px 18px;
       gap: 14px;
     }
@@ -470,14 +470,23 @@
     .good { border-color: var(--green) !important; }
     .bad { border-color: var(--red) !important; }
 
+    #ytVisibleWrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+    }
+
     #yt {
-      width: 1px;
-      height: 1px;
-      opacity: 0.01;
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
-      pointer-events: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    #adPlayerWrap {
+      padding: 14px;
     }
 
     .alist {
@@ -664,6 +673,39 @@
       .opts {
         grid-template-columns: 1fr;
       }
+
+      #game.screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .wrap {
+        min-height: auto;
+        height: auto;
+        padding-bottom: 28px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .q {
+        min-height: 60px;
+      }
+
+      .pz {
+        min-height: 120px;
+      }
+
+      .disc {
+        width: 96px;
+        height: 96px;
+        font-size: 1.8rem;
+      }
+
+      .ar {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -724,8 +766,8 @@
         </div>
 
         <div class="ar">
-          <button class="act" onclick="replayClip()">▶️ 重播 -1</button>
           <button class="act" onclick="skipQuestion()">⏭️ 跳過 -1</button>
+          <button class="act" onclick="openAdMode()">📺 廣告處理</button>
           <button id="giveUpBtn" class="act hidden" onclick="giveUpEndless()">🏳️ 放棄</button>
         </div>
 
@@ -734,7 +776,6 @@
         <div class="panel">
           <div class="pz">
             <button id="disc" class="disc" onclick="replayClip()">▶</button>
-            <div id="yt"></div>
           </div>
           <div class="meta" id="meta">點中間圓盤可重播片段</div>
         </div>
@@ -744,6 +785,16 @@
           <div id="typing" class="ans hidden">
             <input id="answerInput" type="text" placeholder="輸入歌名，例如：晴天" />
             <button class="pb" onclick="submitTypedAnswer()">送出</button>
+          </div>
+        </div>
+
+        <div id="adPlayerWrap" class="panel hidden">
+          <div id="adHint" class="meta">廣告處理模式：可在這裡操作 YouTube 播放器</div>
+          <div id="ytVisibleWrap">
+            <div id="yt"></div>
+          </div>
+          <div class="row">
+            <button class="sb" onclick="closeAdMode()">回到遊戲</button>
           </div>
         </div>
 
@@ -829,7 +880,7 @@
       <div class="ibox">
         <div class="inote">
           支援上傳 CSV 檔案匯入。欄位順序：
-          <code>歌名,youtubeId或網址,前奏秒數,間奏秒數</code>。
+          <code>專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數</code>。
           若秒數留空，會保留原本值。
         </div>
         <div class="frow">
@@ -889,19 +940,6 @@
       { album: "太陽之子", year: 2026, tracks: ["太陽之子","西西里","那天下雨了","湘女多情","誰稀罕","七月的極光","愛琴海","I Do","聖徒","女兒殿下","淘金小鎮","鄉間的路","聖誕星"] }
     ];
 
-    const manualSeeds = {
-      "晴天": "DYptgVvkVLQ",
-      "七里香": "Bbp9ZaJD_eA",
-      "稻香": "sHD_z90ZKV0",
-      "夜曲": "6Q0Pd53mojY",
-      "青花瓷": "Z8Mqw0b9ADs",
-      "聽媽媽的話": "_B8RaLCNUZw",
-      "告白氣球": "bu7nU9Mhpyo",
-      "Mojito": "-biOGdYiF-I",
-      "等你下課": "kfXdP7nZIiE",
-      "說好不哭": "HC6xx-GxlUY"
-    };
-
     const persistedMap = JSON.parse(localStorage.getItem("guess_song_links") || "{}");
     const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
     const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
@@ -930,60 +968,62 @@
     let ytReady = false;
     let usedAnswers = [];
     let currentAlbumPool = [];
+    let adModeOpen = false;
+    let adUsedThisQuestion = false;
 
     const $ = id => document.getElementById(id);
 
     async function loadSongsFromJson() {
-        try {
-            const res = await fetch("./songs.json", { cache: "no-store" });
-            if (!res.ok) throw new Error("songs.json 讀取失敗");
+      try {
+        const res = await fetch("./songs.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("songs.json 讀取失敗");
 
-            const data = await res.json();
-            if (!Array.isArray(data)) {
-            throw new Error("songs.json 格式錯誤，必須是陣列");
-            }
-
-            const metaMap = new Map();
-            albumData.forEach(item => {
-            item.tracks.forEach(title => {
-                metaMap.set(title, {
-                album: item.album,
-                year: item.year,
-                artist: "周杰倫"
-                });
-            });
-            });
-
-            songLibrary = data.map(song => {
-            const saved = persistedMap[song.title] || {};
-            const meta = metaMap.get(song.title) || {};
-
-            return {
-                title: song.title || "",
-                album: song.album || meta.album || "",
-                year: Number(song.year || meta.year || 0),
-                artist: song.artist || meta.artist || "周杰倫",
-                youtubeId: saved.youtubeId || song.youtubeId || "",
-                introStart: Number(saved.introStart ?? song.introStart ?? 0),
-                interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
-            };
-            });
-
-            console.log("songs.json 載入成功，共", songLibrary.length, "首");
-        } catch (err) {
-            console.error(err);
-            alert("讀取 songs.json 失敗，請確認檔案存在且格式正確。");
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+          throw new Error("songs.json 格式錯誤，必須是陣列");
         }
+
+        const metaMap = new Map();
+        albumData.forEach(item => {
+          item.tracks.forEach(title => {
+            metaMap.set(title, {
+              album: item.album,
+              year: item.year,
+              artist: "周杰倫"
+            });
+          });
+        });
+
+        songLibrary = data.map(song => {
+          const saved = persistedMap[song.title] || {};
+          const meta = metaMap.get(song.title) || {};
+
+          return {
+            title: song.title || "",
+            album: song.album || meta.album || "",
+            year: Number(song.year || meta.year || 0),
+            artist: song.artist || meta.artist || "周杰倫",
+            youtubeId: saved.youtubeId || song.youtubeId || "",
+            introStart: Number(saved.introStart ?? song.introStart ?? 0),
+            interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
+          };
+        });
+
+        console.log("songs.json 載入成功，共", songLibrary.length, "首");
+      } catch (err) {
+        console.error(err);
+        alert("讀取 songs.json 失敗，請確認檔案存在且格式正確。");
+      }
     }
 
     function onYouTubeIframeAPIReady() {
       ytReady = true;
       player = new YT.Player("yt", {
-        height: "200",
-        width: "320",
+        height: "220",
+        width: "360",
         playerVars: {
           autoplay: 0,
-          controls: 0,
+          controls: 1,
           rel: 0,
           modestbranding: 1,
           playsinline: 1
@@ -1026,24 +1066,24 @@
     }
 
     function getAllAlbums() {
-        return [...new Set(songLibrary.map(song => song.album).filter(Boolean))];
+      return [...new Set(songLibrary.map(song => song.album).filter(Boolean))];
     }
 
     function renderAlbumGrid() {
-        const albums = getAllAlbums();
-        $("albumGrid").innerHTML = "";
+      const albums = getAllAlbums();
+      $("albumGrid").innerHTML = "";
 
-        albums.forEach(albumName => {
-            const b = document.createElement("button");
-            b.className = "ab" + (selectedAlbums.has(albumName) ? " active" : "");
-            b.textContent = albumName;
-            b.onclick = () => {
-            if (selectedAlbums.has(albumName)) selectedAlbums.delete(albumName);
-            else selectedAlbums.add(albumName);
-            renderAlbumGrid();
-            };
-            $("albumGrid").appendChild(b);
-        });
+      albums.forEach(albumName => {
+        const b = document.createElement("button");
+        b.className = "ab" + (selectedAlbums.has(albumName) ? " active" : "");
+        b.textContent = albumName;
+        b.onclick = () => {
+          if (selectedAlbums.has(albumName)) selectedAlbums.delete(albumName);
+          else selectedAlbums.add(albumName);
+          renderAlbumGrid();
+        };
+        $("albumGrid").appendChild(b);
+      });
     }
 
     function clearAllAlbums() {
@@ -1239,6 +1279,10 @@
 
     function startGame(mode) {
       hidePointEffect();
+      $("adPlayerWrap").classList.add("hidden");
+      adModeOpen = false;
+      adUsedThisQuestion = false;
+
       currentAlbumPool = chooseAlbumsForGame();
       const pool = getFilteredSongsForCurrentGame();
 
@@ -1275,20 +1319,26 @@
     function restartCurrentGame() {
       stopTimer();
       stopPlayback();
+      $("adPlayerWrap").classList.add("hidden");
+      adModeOpen = false;
+      adUsedThisQuestion = false;
       startGame(gameMode);
       hidePointEffect();
     }
 
     function quitToHome() {
-        stopTimer();
-        stopPlayback();
-        isPaused = false;
-        answered = false;
-        currentSong = null;
-        $("pauseOverlay").classList.remove("show");
-        $("gameOver").classList.remove("show");
-        setActiveScreen("home");
-        hidePointEffect();
+      stopTimer();
+      stopPlayback();
+      isPaused = false;
+      answered = false;
+      currentSong = null;
+      $("pauseOverlay").classList.remove("show");
+      $("gameOver").classList.remove("show");
+      $("adPlayerWrap").classList.add("hidden");
+      adModeOpen = false;
+      adUsedThisQuestion = false;
+      setActiveScreen("home");
+      hidePointEffect();
     }
 
     function pickClipType() {
@@ -1313,6 +1363,9 @@
 
       currentClipType = pickClipType();
       answered = false;
+      adUsedThisQuestion = false;
+      $("adPlayerWrap").classList.add("hidden");
+      adModeOpen = false;
 
       $("question").textContent =
         currentClipType === "intro"
@@ -1410,11 +1463,15 @@
       stopPlayback();
 
       if (correct) {
-        applyScore(1);
+        if (!adUsedThisQuestion) {
+          applyScore(1);
+        }
+
         usedAnswers.push({
           song: currentSong,
           clipType: currentClipType,
-          correct: true
+          correct: true,
+          noScore: adUsedThisQuestion
         });
 
         setTimeout(() => {
@@ -1485,6 +1542,28 @@
       endGame();
     }
 
+    function openAdMode() {
+      if (!currentSong || !currentSong.youtubeId) {
+        alert("目前沒有可處理的題目影片。");
+        return;
+      }
+
+      stopTimer();
+      adModeOpen = true;
+      adUsedThisQuestion = true;
+      $("adPlayerWrap").classList.remove("hidden");
+      $("adHint").textContent = "本題已標記為不計分，可在這裡處理廣告後回到遊戲";
+    }
+
+    function closeAdMode() {
+      adModeOpen = false;
+      $("adPlayerWrap").classList.add("hidden");
+
+      if (!answered && currentSong) {
+        startQuestionTimer();
+      }
+    }
+
     function startQuestionTimer() {
       stopTimer();
       timeLeft = Math.max(3, Number($("timeLimitInput").value || 10));
@@ -1542,7 +1621,13 @@
       wrap.classList.remove("hidden");
       wrap.innerHTML = usedAnswers.length
         ? usedAnswers.map((it, i) => {
-            const status = it.correct ? "答對" : it.skipped ? "跳過" : it.timeout ? "超時" : "答錯";
+            const status = it.correct
+              ? (it.noScore ? "答對（不計分）" : "答對")
+              : it.skipped
+              ? "跳過"
+              : it.timeout
+              ? "超時"
+              : "答錯";
             return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${status}</div>`;
           }).join("")
         : "<div>本局沒有題目紀錄</div>";
@@ -1556,7 +1641,11 @@
       isPaused = !isPaused;
       $("pauseOverlay").classList.toggle("show", isPaused);
 
-      if (isPaused) stopPlayback();
+      if (isPaused) {
+        $("adPlayerWrap").classList.add("hidden");
+        adModeOpen = false;
+        stopPlayback();
+      }
     }
 
     function stopPlayback() {
@@ -1602,14 +1691,14 @@
     }
 
     function replayClip() {
-        if (!currentSong || answered) return;
-        applyScore(-1);
-        playClipForSong(currentSong, currentClipType);
+      if (!currentSong || answered) return;
+      applyScore(-1);
+      playClipForSong(currentSong, currentClipType);
     }
 
     function autoPlayCurrentClip() {
-        if (!currentSong || answered) return;
-        playClipForSong(currentSong, currentClipType);
+      if (!currentSong || answered) return;
+      playClipForSong(currentSong, currentClipType);
     }
 
     function previewSongClip(title, clipType) {
@@ -1633,166 +1722,202 @@
     }
 
     function importCsvText(raw) {
-        const lines = raw
-            .split(/\r?\n/)
-            .map(s => s.trim())
-            .filter(Boolean);
+      const lines = raw
+        .split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(Boolean);
 
-        let updated = 0;
-        let skipped = 0;
+      let updated = 0;
+      let skipped = 0;
 
-        if (!lines.length) {
-            return { updated: 0, skipped: 0 };
+      if (!lines.length) {
+        return { updated: 0, skipped: 0 };
+      }
+
+      const firstLine = lines[0].split(",").map(s => s.trim());
+      const isFullFormat =
+        firstLine[0] === "專輯" &&
+        firstLine[1] === "年份" &&
+        firstLine[2] === "歌名";
+
+      const isOldFormat =
+        firstLine[0] === "歌名" &&
+        firstLine[1] === "youtubeId或網址";
+
+      lines.forEach((line, index) => {
+        const parts = line.split(",").map(s => s.trim());
+
+        if (index === 0 && (isFullFormat || isOldFormat)) {
+          return;
         }
 
-        const firstLine = lines[0].split(",").map(s => s.trim());
-        const isFullFormat =
-            firstLine[0] === "專輯" &&
-            firstLine[1] === "年份" &&
-            firstLine[2] === "歌名";
+        let album = "";
+        let year = "";
+        let title = "";
+        let artist = "";
+        let idOrUrl = "";
+        let introRaw = "";
+        let interludeRaw = "";
 
-        const isOldFormat =
-            firstLine[0] === "歌名" &&
-            firstLine[1] === "youtubeId或網址";
+        if (isFullFormat) {
+          [album, year, title, artist, idOrUrl, introRaw, interludeRaw] = parts;
+        } else {
+          [title, idOrUrl, introRaw, interludeRaw] = parts;
+        }
 
-        lines.forEach((line, index) => {
-            const parts = line.split(",").map(s => s.trim());
+        if (!title) {
+          skipped += 1;
+          return;
+        }
 
-            if (index === 0 && (isFullFormat || isOldFormat)) {
-            return;
+        let target = songLibrary.find(s => s.title === title);
+
+        if (!target && isFullFormat) {
+          target = songLibrary.find(
+            s => s.title === title && (!album || s.album === album)
+          );
+        }
+
+        if (!target) {
+          skipped += 1;
+          return;
+        }
+
+        const youtubeId = extractYouTubeId(idOrUrl);
+
+        if (idOrUrl && !youtubeId) {
+          skipped += 1;
+          return;
+        }
+
+        if (isFullFormat) {
+          if (album) target.album = album;
+          if (year !== "") target.year = Number(year) || target.year || 0;
+          if (artist) target.artist = artist;
+        }
+
+        if (youtubeId) target.youtubeId = youtubeId;
+        if (introRaw !== undefined && introRaw !== "") {
+          target.introStart = Number(introRaw) || 0;
+        }
+        if (interludeRaw !== undefined && interludeRaw !== "") {
+          target.interludeStart = Number(interludeRaw) || 60;
+        }
+
+        updated += 1;
+      });
+
+      saveSongMap();
+      renderManageList();
+      return { updated, skipped };
+    }
+
+    function importCsvFile() {
+      const file = $("csvFileInput").files?.[0];
+      if (!file) {
+        alert("請先選擇 CSV 檔案。");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const buffer = reader.result;
+          let text = "";
+
+          try {
+            text = new TextDecoder("utf-8").decode(buffer);
+            if (text.includes("�")) {
+              text = new TextDecoder("big5").decode(buffer);
             }
+          } catch {
+            text = new TextDecoder("big5").decode(buffer);
+          }
 
-            let album = "";
-            let year = "";
-            let title = "";
-            let artist = "";
-            let idOrUrl = "";
-            let introRaw = "";
-            let interludeRaw = "";
+          const result = importCsvText(text);
+          $("csvFileStatus").textContent = `已匯入 ${result.updated} 筆，略過 ${result.skipped} 筆：${file.name}`;
+        } catch (err) {
+          console.error(err);
+          alert("讀取 CSV 檔案失敗。");
+        }
+      };
 
-            if (isFullFormat) {
-            [album, year, title, artist, idOrUrl, introRaw, interludeRaw] = parts;
-            } else {
-            [title, idOrUrl, introRaw, interludeRaw] = parts;
-            }
+      reader.onerror = () => {
+        alert("讀取 CSV 檔案失敗。");
+      };
 
-            if (!title) {
-            skipped += 1;
-            return;
-            }
-
-            let target = songLibrary.find(s => s.title === title);
-
-            if (!target && isFullFormat) {
-            target = songLibrary.find(
-                s =>
-                s.title === title &&
-                (!album || s.album === album)
-            );
-            }
-
-            if (!target) {
-            skipped += 1;
-            return;
-            }
-
-            const youtubeId = extractYouTubeId(idOrUrl);
-
-            if (idOrUrl && !youtubeId) {
-            skipped += 1;
-            return;
-            }
-
-            if (isFullFormat) {
-            if (album) target.album = album;
-            if (year !== "") target.year = Number(year) || target.year || 0;
-            if (artist) target.artist = artist;
-            }
-
-            if (youtubeId) target.youtubeId = youtubeId;
-            if (introRaw !== undefined && introRaw !== "") {
-            target.introStart = Number(introRaw) || 0;
-            }
-            if (interludeRaw !== undefined && interludeRaw !== "") {
-            target.interludeStart = Number(interludeRaw) || 60;
-            }
-
-            updated += 1;
-        });
-
-        saveSongMap();
-        renderManageList();
-        return { updated, skipped };
+      reader.readAsArrayBuffer(file);
     }
 
     function exportCsvData() {
-        const rows = songLibrary.map(song =>
-            [
-            song.album || "",
-            song.year || "",
-            song.title || "",
-            song.artist || "",
-            song.youtubeId || "",
-            song.introStart ?? "",
-            song.interludeStart ?? ""
-            ].join(",")
-        );
+      const rows = songLibrary.map(song =>
+        [
+          song.album || "",
+          song.year || "",
+          song.title || "",
+          song.artist || "",
+          song.youtubeId || "",
+          song.introStart ?? "",
+          song.interludeStart ?? ""
+        ].join(",")
+      );
 
-        const csv = [
-            "專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數",
-            ...rows
-        ].join("\n");
+      const csv = [
+        "專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數",
+        ...rows
+      ].join("\n");
 
-        const blob = new Blob(["\ufeff" + csv], {
-            type: "text/csv;charset=utf-8;"
-        });
+      const blob = new Blob(["\ufeff" + csv], {
+        type: "text/csv;charset=utf-8;"
+      });
 
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guess-song-data-full.csv";
-        a.click();
-        URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "guess-song-data-full.csv";
+      a.click();
+      URL.revokeObjectURL(url);
 
-        $("csvFileStatus").textContent = rows.length
-            ? "已匯出完整格式 CSV"
-            : "目前沒有可匯出的資料";
+      $("csvFileStatus").textContent = rows.length
+        ? "已匯出完整格式 CSV"
+        : "目前沒有可匯出的資料";
     }
 
     function exportCsvTemplateDisplayed() {
-        const rows = getManagerFilteredRows();
+      const rows = getManagerFilteredRows();
 
-        const csvRows = [
-            "專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數"
-        ];
+      const csvRows = [
+        "專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數"
+      ];
 
-        rows.forEach(song => {
-            csvRows.push([
-            song.album || "",
-            song.year || "",
-            song.title || "",
-            song.artist || "",
-            song.youtubeId || "",
-            song.introStart ?? "",
-            song.interludeStart ?? ""
-            ].join(","));
-        });
+      rows.forEach(song => {
+        csvRows.push([
+          song.album || "",
+          song.year || "",
+          song.title || "",
+          song.artist || "",
+          song.youtubeId || "",
+          song.introStart ?? "",
+          song.interludeStart ?? ""
+        ].join(","));
+      });
 
-        const csv = csvRows.join("\n");
-        const blob = new Blob(["\ufeff" + csv], {
-            type: "text/csv;charset=utf-8;"
-        });
+      const csv = csvRows.join("\n");
+      const blob = new Blob(["\ufeff" + csv], {
+        type: "text/csv;charset=utf-8;"
+      });
 
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guess-song-template-displayed-full.csv";
-        a.click();
-        URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "guess-song-template-displayed-full.csv";
+      a.click();
+      URL.revokeObjectURL(url);
 
-        $("csvFileStatus").textContent = rows.length
-            ? `已匯出目前顯示的 ${rows.length} 首完整格式`
-            : "目前沒有可匯出的顯示內容";
+      $("csvFileStatus").textContent = rows.length
+        ? `已匯出目前顯示的 ${rows.length} 首完整格式`
+        : "目前沒有可匯出的顯示內容";
     }
 
     $("settingsBtn").addEventListener("click", openSettings);
@@ -1847,17 +1972,17 @@
     });
 
     function hidePointEffect() {
-        $("floatFx").classList.remove("show");
-        $("floatFx").style.opacity = "0";
+      $("floatFx").classList.remove("show");
+      $("floatFx").style.opacity = "0";
     }
 
     async function initApp() {
-        await loadSongsFromJson();
-        selectedAlbums = new Set(getAllAlbums());
-        renderAlbumGrid();
-        renderSettingButtons();
-        renderManageList();
-        updateHighScoreUI();
+      await loadSongsFromJson();
+      selectedAlbums = new Set(getAllAlbums());
+      renderAlbumGrid();
+      renderSettingButtons();
+      renderManageList();
+      updateHighScoreUI();
     }
 
     initApp();
