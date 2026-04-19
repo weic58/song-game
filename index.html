@@ -939,19 +939,30 @@
             if (!res.ok) throw new Error("songs.json 讀取失敗");
 
             const data = await res.json();
-
             if (!Array.isArray(data)) {
             throw new Error("songs.json 格式錯誤，必須是陣列");
             }
 
+            const metaMap = new Map();
+            albumData.forEach(item => {
+            item.tracks.forEach(title => {
+                metaMap.set(title, {
+                album: item.album,
+                year: item.year,
+                artist: "周杰倫"
+                });
+            });
+            });
+
             songLibrary = data.map(song => {
             const saved = persistedMap[song.title] || {};
+            const meta = metaMap.get(song.title) || {};
 
             return {
                 title: song.title || "",
-                album: song.album || "",
-                year: Number(song.year || 0),
-                artist: song.artist || "周杰倫",
+                album: song.album || meta.album || "",
+                year: Number(song.year || meta.year || 0),
+                artist: song.artist || meta.artist || "周杰倫",
                 youtubeId: saved.youtubeId || song.youtubeId || "",
                 introStart: Number(saved.introStart ?? song.introStart ?? 0),
                 interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
@@ -1622,46 +1633,6 @@
     }
 
     function importCsvText(raw) {
-      const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      let updated = 0;
-      let skipped = 0;
-
-      lines.forEach((line, index) => {
-        const parts = line.split(",").map(s => s.trim());
-
-        if (index === 0 && parts[0] === "歌名") return;
-        if (parts.length < 2) {
-          skipped += 1;
-          return;
-        }
-
-        const [title, idOrUrl, introRaw, interludeRaw] = parts;
-        const target = songLibrary.find(s => s.title === title);
-
-        if (!target) {
-          skipped += 1;
-          return;
-        }
-
-        const youtubeId = extractYouTubeId(idOrUrl);
-        if (idOrUrl && !youtubeId) {
-          skipped += 1;
-          return;
-        }
-
-        if (youtubeId) target.youtubeId = youtubeId;
-        if (introRaw !== undefined && introRaw !== "") target.introStart = Number(introRaw) || 0;
-        if (interludeRaw !== undefined && interludeRaw !== "") target.interludeStart = Number(interludeRaw) || 60;
-
-        updated += 1;
-      });
-
-      saveSongMap();
-      renderManageList();
-      return { updated, skipped };
-    }
-
-    function importCsvText(raw) {
         const lines = raw
             .split(/\r?\n/)
             .map(s => s.trim())
@@ -1752,6 +1723,40 @@
         saveSongMap();
         renderManageList();
         return { updated, skipped };
+    }
+
+    function exportCsvData() {
+        const rows = songLibrary.map(song =>
+            [
+            song.album || "",
+            song.year || "",
+            song.title || "",
+            song.artist || "",
+            song.youtubeId || "",
+            song.introStart ?? "",
+            song.interludeStart ?? ""
+            ].join(",")
+        );
+
+        const csv = [
+            "專輯,年份,歌名,歌手,youtubeId或網址,前奏秒數,間奏秒數",
+            ...rows
+        ].join("\n");
+
+        const blob = new Blob(["\ufeff" + csv], {
+            type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "guess-song-data-full.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        $("csvFileStatus").textContent = rows.length
+            ? "已匯出完整格式 CSV"
+            : "目前沒有可匯出的資料";
     }
 
     function exportCsvTemplateDisplayed() {
