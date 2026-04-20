@@ -659,10 +659,14 @@
     .hidden { display: none !important; }
 
     @media (max-width: 640px) {
+      .screen {
+        padding: 10px;
+      }
+
       .mgr {
         width: 96vw;
         height: 92vh;
-        padding: 14px;
+        padding: 12px;
       }
 
       .mtools,
@@ -682,29 +686,73 @@
       .wrap {
         min-height: auto;
         height: auto;
-        padding-bottom: 28px;
+        padding: 10px 10px 20px;
+        gap: 10px;
+      }
+
+      .gi {
+        gap: 6px;
+      }
+
+      .sgp {
+        gap: 6px;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        font-size: 13px;
       }
 
       .panel {
-        padding: 14px;
+        padding: 10px;
+        border-radius: 16px;
       }
 
       .q {
-        min-height: 60px;
+        min-height: 44px;
+        font-size: 14px;
+        line-height: 1.5;
       }
 
       .pz {
-        min-height: 120px;
+        min-height: 88px;
       }
 
       .disc {
-        width: 96px;
-        height: 96px;
-        font-size: 1.8rem;
+        width: 78px;
+        height: 78px;
+        font-size: 1.45rem;
+      }
+
+      .act,
+      .opt,
+      .pb,
+      .sb {
+        min-height: 50px;
+        font-size: 15px;
+      }
+
+      .opt {
+        padding: 10px;
+      }
+
+      .ans {
+        gap: 8px;
+      }
+
+      .ans input {
+        min-height: 42px;
+        font-size: 15px;
+      }
+
+      .meta {
+        font-size: 12px;
+        margin-top: 6px;
       }
 
       .ar {
         grid-template-columns: 1fr;
+        gap: 8px;
       }
     }
   </style>
@@ -1797,7 +1845,7 @@
       const baseStart =
         clipType === "intro"
           ? Number(song.introStart || 0)
-          : Number(song.interludeStart || 0);
+          : Math.floor(Math.random() * (160 - 60 + 1)) + 60;
 
       const length = Math.max(2, Number($("clipLengthInput").value || 6));
       const startAt = baseStart + offset;
