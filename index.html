@@ -1091,7 +1091,7 @@
               title,
               album: item.album,
               year: item.year,
-              artist: "周杰倫"
+              artist: ""
             };
             metaMap.set(getSongKey(base), base);
           });
@@ -1104,7 +1104,7 @@
               title: song.title || "",
               album: song.album || "",
               year: Number(song.year || 0),
-              artist: song.artist || "周杰倫",
+              artist: song.artist || "",
               youtubeId: song.youtubeId || "",
               introStart: Number(song.introStart ?? 0),
               interludeStart: Number(song.interludeStart ?? 60)
@@ -1129,7 +1129,7 @@
             title: saved.title || song.title || meta.title || "",
             album: saved.album || song.album || meta.album || "",
             year: Number(saved.year || song.year || meta.year || 0),
-            artist: saved.artist || song.artist || meta.artist || "周杰倫",
+            artist: saved.artist || song.artist || meta.artist || "",
             youtubeId: saved.youtubeId || song.youtubeId || "",
             introStart: Number(saved.introStart ?? song.introStart ?? 0),
             interludeStart: Number(saved.interludeStart ?? song.interludeStart ?? 60)
@@ -1147,7 +1147,7 @@
               title: savedSong.title || "",
               album: savedSong.album || "",
               year: Number(savedSong.year || 0),
-              artist: savedSong.artist || "周杰倫",
+              artist: savedSong.artist || "",
               youtubeId: savedSong.youtubeId || "",
               introStart: Number(savedSong.introStart ?? 0),
               interludeStart: Number(savedSong.interludeStart ?? 60)
@@ -1169,7 +1169,7 @@
         title: song.title || "",
         album: song.album || "未分類",
         year: Number(song.year || 0),
-        artist: song.artist || "周杰倫",
+        artist: song.artist || "",
         youtubeId: song.youtubeId || "",
         introStart: Number(song.introStart ?? 0),
         interludeStart: Number(song.interludeStart ?? 60)
@@ -1348,7 +1348,7 @@
           title: s.title || "",
           album: s.album || "",
           year: Number(s.year || 0),
-          artist: s.artist || "周杰倫",
+          artist: s.artist || "",
           youtubeId: s.youtubeId || "",
           introStart: Number(s.introStart ?? 0),
           interludeStart: Number(s.interludeStart ?? 60)
@@ -2113,7 +2113,7 @@
           title: title || "",
           album: album || "未分類",
           year: Number(year || 0),
-          artist: artist || "周杰倫",
+          artist: artist || "",
           youtubeId: youtubeId || "",
           introStart: introRaw !== undefined && introRaw !== "" ? Number(introRaw) || 0 : 0,
           interludeStart: interludeRaw !== undefined && interludeRaw !== "" ? Number(interludeRaw) || 60 : 60
@@ -2244,7 +2244,7 @@
         album: song.album || "",
         year: Number(song.year || 0),
         title: song.title || "",
-        artist: song.artist || "周杰倫",
+        artist: song.artist || "",
         youtubeId: song.youtubeId || "",
         introStart: Number(song.introStart ?? 0),
         interludeStart: Number(song.interludeStart ?? 60)
