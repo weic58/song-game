@@ -2240,11 +2240,13 @@
     }
 
     function exportJsonData() {
-      const data = songLibrary.map(song => ({
+      const rows = getManagerFilteredRows();
+
+      const data = rows.map(song => ({
         album: song.album || "",
         year: Number(song.year || 0),
         title: song.title || "",
-        artist: song.artist || "",
+        artist: song.artist || "未知歌手",
         youtubeId: song.youtubeId || "",
         introStart: Number(song.introStart ?? 0),
         interludeStart: Number(song.interludeStart ?? 60)
@@ -2259,11 +2261,13 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "songs.json";
+      a.download = "songs-displayed.json";
       a.click();
       URL.revokeObjectURL(url);
 
-      $("csvFileStatus").textContent = `已匯出 JSON，共 ${data.length} 首`;
+      $("csvFileStatus").textContent = rows.length
+        ? `已匯出目前顯示的 ${rows.length} 首 JSON`
+        : "目前沒有可匯出的顯示內容";
     }
 
     $("settingsBtn").addEventListener("click", openSettings);
