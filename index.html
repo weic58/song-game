@@ -415,12 +415,15 @@
       cursor: pointer;
       background: url("disc.png") center/cover no-repeat;
       background-color: transparent;
-      background-size: 120%;
-      background-position: 50% 53%;
       box-shadow: 0 12px 30px rgba(74, 144, 226, 0.28);
       display: block;
       padding: 0;
       overflow: hidden;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      outline: none;
+      line-height: 0;
     }
 
     .playing { animation: spin 2s linear infinite; }
@@ -706,14 +709,15 @@
       }
 
       #game .ar {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, max-content);
+        justify-content: center;
         gap: 6px;
       }
 
       #game .act {
-        min-height: 40px;
-        font-size: 14px;
-        padding: 8px 10px;
+        min-height: 36px;
+        font-size: 13px;
+        padding: 6px 10px;
       }
 
       #game .panel {
