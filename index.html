@@ -411,17 +411,13 @@
       width: 124px;
       height: 124px;
       border-radius: 50%;
-      background:
-        radial-gradient(circle at 35% 35%, #fff 0 5%, transparent 6%),
-        linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2.2rem;
-      color: #fff;
-      box-shadow: 0 12px 30px rgba(74, 144, 226, 0.28);
-      cursor: pointer;
       border: none;
+      cursor: pointer;
+      background: url("disc.png") center/cover no-repeat;
+      background-color: transparent;
+      box-shadow: 0 12px 30px rgba(74, 144, 226, 0.28);
+      display: block;
+      padding: 0;
     }
 
     .playing { animation: spin 2s linear infinite; }
@@ -735,7 +731,6 @@
       #game .disc {
         width: 74px;
         height: 74px;
-        font-size: 1.35rem;
       }
 
       #game .meta {
@@ -833,7 +828,7 @@
 
         <div class="panel">
           <div class="pz">
-            <button id="disc" class="disc" onclick="replayClip()">▶</button>
+            <button id="disc" class="disc" onclick="replayClip()"></button>
           </div>
           <div class="meta" id="meta">點中間圓盤可延長播放(扣1分)</div>
         </div>
