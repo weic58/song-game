@@ -48,15 +48,14 @@
       background: var(--bg);
       color: var(--text);
       font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
-      height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
-      transition: 0.25s;
     }
 
     .app {
       max-width: 520px;
       margin: 0 auto;
-      height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
     }
@@ -91,8 +90,9 @@
     .screen {
       display: none;
       flex-direction: column;
-      height: calc(100vh - 67px);
-      padding: 16px;
+      flex: 1;
+      min-height: 0;
+      padding: 12px;
       overflow: hidden;
     }
 
