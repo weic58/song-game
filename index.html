@@ -41,6 +41,34 @@
       --shadow: 0 10px 24px rgba(60, 86, 160, 0.12);
     }
 
+    #bigCountdown {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 9rem;
+      font-weight: 900;
+      color: var(--red);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    #bigCountdown.pulse {
+      animation: countdownPulse 0.8s ease-out;
+    }
+
+    @keyframes countdownPulse {
+      0% {
+        opacity: 0.85;
+        transform: translate(-50%, -50%) scale(0.55);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.35);
+      }
+    }
+
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
@@ -873,6 +901,8 @@
       </div>
     </header>
 
+    <div id="bigCountdown">3</div>
+
     <div id="home" class="screen active">
       <div class="loading">猜歌遊戲</div>
 
@@ -1335,9 +1365,9 @@
         if (!record.score) {
           $("hs_" + k).textContent = "0";
         } else if (record.time == null) {
-          $("hs_" + k).textContent = `${record.score}`;
+          $("hs_" + k).textContent = `${record.score} 題`;
         } else {
-          $("hs_" + k).textContent = `${record.score} 分｜${record.time.toFixed(1)} 秒`;
+          $("hs_" + k).textContent = `${record.score} 題｜${record.time.toFixed(1)} 秒`;
         }
       });
     }
@@ -1347,10 +1377,10 @@
       const oldRecord = normalizeRecord(highScores[gameMode]);
 
       const shouldUpdate =
-        score > oldRecord.score ||
+        correctCount > oldRecord.score ||
         (
-          score === oldRecord.score &&
-          score > 0 &&
+          correctCount === oldRecord.score &&
+          correctCount > 0 &&
           (
             oldRecord.time == null ||
             currentTime < oldRecord.time
@@ -1359,7 +1389,7 @@
 
       if (shouldUpdate) {
         highScores[gameMode] = {
-          score,
+          score: correctCount,
           time: currentTime
         };
         localStorage.setItem("guess_song_high_scores", JSON.stringify(highScores));
@@ -1721,7 +1751,7 @@
 
       const metaLabel =
         gameMode === "endless"
-          ? `連續答對 ${score} 題`
+          ? `目前答對 ${correctCount} 題`
           : `第 ${currentIndex + 1} / ${gameQueue.length} 題`;
 
       $("meta").textContent = metaLabel;
@@ -1808,8 +1838,9 @@
 
     function applyScore(delta) {
       score += delta;
-      $("score").textContent = score;
-      playPointEffect(delta);
+      if (delta > 0) {
+        playPointEffect(delta);
+      }
     }
 
     function checkAnswer(correct) {
@@ -1825,10 +1856,9 @@
       if (correct) {
         if (!adUsedThisQuestion) {
           applyScore(1);
+          correctCount += 1;
+          $("correctCount").textContent = correctCount;
         }
-
-        correctCount += 1;
-        $("correctCount").textContent = correctCount;
 
         usedAnswers.push({
           song: currentSong,
@@ -1965,6 +1995,10 @@
         $("time").textContent = Math.max(0, timeLeft);
         updateTimeDanger();
 
+        if (timeLeft > 0 && timeLeft <= 3) {
+          showBigCountdown(timeLeft);
+        }
+
         if (timeLeft <= 0) {
           handleTimeUp();
         }
@@ -1973,6 +2007,16 @@
 
     function updateTimeDanger() {
       $("timePill").classList.toggle("danger", timeLeft <= 3);
+    }
+
+    function showBigCountdown(num) {
+      const el = $("bigCountdown");
+      if (!el) return;
+
+      el.textContent = num;
+      el.classList.remove("pulse");
+      void el.offsetWidth;
+      el.classList.add("pulse");
     }
 
     function handleTimeUp() {
