@@ -104,8 +104,7 @@
       flex: 1;
       min-height: 0;
       padding: 12px;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     .screen.active { display: flex; }
@@ -788,10 +787,22 @@
         font-size: 14px;
         padding: 10px 12px;
       }
+    }
 
+    @media (max-height: 820px) {
       .wrap {
         padding: 8px 12px 10px;
         gap: 8px;
+      }
+
+      #game {
+        padding: 0;
+        height: 100%;
+      }
+
+      #game.screen.active {
+        display: flex;
+        flex-direction: column;
       }
 
       header {
@@ -810,6 +821,7 @@
       .q {
         min-height: 42px;
         font-size: 14px;
+        line-height: 1.45;
       }
 
       .pz {
@@ -823,6 +835,7 @@
 
       .meta {
         font-size: 11px;
+        margin-top: 4px;
       }
 
       .act {
