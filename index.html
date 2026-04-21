@@ -413,6 +413,15 @@
 
     .danger { animation: pulse 1s infinite; }
 
+    .answer-item-wrong {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .answer-item-correct {
+      color: var(--text);
+    }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.06); }
@@ -2066,7 +2075,8 @@
               : it.timeout
               ? "超時"
               : "答錯";
-            return `<div>${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${status} ｜ ${Number(it.elapsedSec || 0).toFixed(1)} 秒</div>`;
+            const rowClass = it.correct ? "answer-item-correct" : "answer-item-wrong";
+            return `<div class="${rowClass}">${i + 1}. ${it.clipType === "intro" ? "前奏" : "間奏"} ｜ ${it.song.title} ｜ ${it.song.album || "未知專輯"} ｜ ${status} ｜ ${Number(it.elapsedSec || 0).toFixed(1)} 秒</div>`;
           }).join("")
         : "<div>本局沒有題目紀錄</div>";
 
