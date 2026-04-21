@@ -1984,6 +1984,10 @@
           $("time").textContent = Math.max(0, timeLeft);
           updateTimeDanger();
 
+          if (timeLeft > 0 && timeLeft <= 3) {
+            showBigCountdown(timeLeft);
+          }
+
           if (timeLeft <= 0) {
             handleTimeUp();
           }
