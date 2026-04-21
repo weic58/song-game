@@ -57,7 +57,7 @@
     }
 
     .app {
-      max-width: 520px;
+      max-width: 440px;
       margin: 0 auto;
       height: 100dvh;
       display: flex;
@@ -75,13 +75,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 18px 12px;
+      padding: 10px 14px 8px;
       border-bottom: 1px solid var(--border);
     }
 
     h1 {
       margin: 0;
-      font-size: 1.9rem;
+      font-size: 1.55rem;
       cursor: pointer;
     }
 
@@ -117,14 +117,14 @@
 
     .cards {
       display: grid;
-      gap: 14px;
-      margin-top: 12px;
+      gap: 10px;
+      margin-top: 8px;
     }
 
     .card {
       border: none;
-      border-radius: 18px;
-      padding: 22px 18px;
+      border-radius: 16px;
+      padding: 14px 14px;
       color: #fff;
       text-align: center;
       cursor: pointer;
@@ -135,13 +135,15 @@
     .card:hover { transform: translateY(-3px) scale(1.01); }
 
     .card h2 {
-      margin: 0 0 8px;
-      font-size: 1.6rem;
+      margin: 0 0 4px;
+      font-size: 1.25rem;
     }
 
     .card p {
-      margin: 0 0 8px;
+      margin: 0 0 6px;
       opacity: 0.95;
+      font-size: 0.9rem;
+      line-height: 1.3;
     }
 
     .b1 { background: linear-gradient(135deg, #8e44ad, #5b2c83); }
@@ -165,15 +167,15 @@
     }
 
     .note {
-      font-size: 13px;
-      line-height: 1.7;
-      margin-top: 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 10px;
     }
 
     .foot {
-      font-size: 12px;
+      font-size: 11px;
       margin-top: auto;
-      padding-top: 8px;
+      padding-top: 6px;
     }
 
     .modal,
@@ -909,7 +911,7 @@
         <div class="gi">
           <div id="modeDisplay" class="mb">🎵 前奏模式</div>
           <div class="sgp">
-            <div class="pill sp">⭐ <span id="score">0</span></div>
+            <div class="pill sp">✅ <span id="correctCount">0</span></div>
             <div id="timePill" class="pill tp">⏳ <span id="time">--</span></div>
           </div>
         </div>
@@ -1059,7 +1061,7 @@
   <div id="gameOver" class="overlay">
     <div class="obox">
       <h2 id="endTitle">遊戲結束！</h2>
-      <p>總分：<b id="finalScore">0</b> / <span id="finalTotal">0</span></p>
+      <p>答對題數：<b id="finalScore">0</b> / <span id="finalTotal">0</span></p>
       <p>總作答時間：<b id="finalTime">0.0</b> 秒</p>
       <div id="answersWrap" class="alist hidden"></div>
       <div class="row">
@@ -1137,6 +1139,7 @@
     let currentIndex = 0;
     let currentSong = null;
     let score = 0;
+    let correctCount = 0;
     let timeLeft = 0;
     let timer = null;
     let isMuted = false;
@@ -1632,13 +1635,14 @@
 
       gameMode = mode;
       score = 0;
+      correctCount = 0;
       totalAnswerTime = 0;
       currentIndex = 0;
       answered = false;
       usedAnswers = [];
       gameQueue = buildQuestionQueue(pool, mode === "endless");
 
-      $("score").textContent = score;
+      $("correctCount").textContent = correctCount;
       $("result").className = "res hidden";
       $("result").innerHTML = "";
       $("giveUpBtn").classList.toggle("hidden", mode !== "endless");
@@ -1823,6 +1827,9 @@
           applyScore(1);
         }
 
+        correctCount += 1;
+        $("correctCount").textContent = correctCount;
+
         usedAnswers.push({
           song: currentSong,
           clipType: currentClipType,
@@ -1999,7 +2006,7 @@
       stopPlayback();
       saveHighScore();
 
-      $("finalScore").textContent = score;
+      $("finalScore").textContent = correctCount;
       $("finalTotal").textContent = gameMode === "endless" ? usedAnswers.length : gameQueue.length;
       $("finalTime").textContent = totalAnswerTime.toFixed(1);
       $("endTitle").textContent = "遊戲結束！";
