@@ -103,8 +103,8 @@
     "year": 2001,
     "title": "爸 我回來了",
     "artist": "周杰倫",
-    "youtubeId": "y1JqI2z2npc",
-    "introStart": 0,
+    "youtubeId": "nhyT8HDT4lg",
+    "introStart": 14,
     "interludeStart": 60
   },
   {
@@ -158,7 +158,7 @@
     "title": "威廉古堡",
     "artist": "周杰倫",
     "youtubeId": "lCzWCxVAkfc",
-    "introStart": 0,
+    "introStart": 7,
     "interludeStart": 60
   },
   {
@@ -230,7 +230,7 @@
     "title": "分裂",
     "artist": "周杰倫",
     "youtubeId": "eM6mF4RWhe0",
-    "introStart": 0,
+    "introStart": 4.5,
     "interludeStart": 60
   },
   {
@@ -275,7 +275,7 @@
     "title": "以父之名",
     "artist": "周杰倫",
     "youtubeId": "bf_aidageTs",
-    "introStart": 0,
+    "introStart": 7,
     "interludeStart": 60
   },
   {
@@ -374,7 +374,7 @@
     "title": "我的地盤",
     "artist": "周杰倫",
     "youtubeId": "RJerfq6MqY0",
-    "introStart": 0,
+    "introStart": 30,
     "interludeStart": 60
   },
   {
@@ -599,7 +599,7 @@
     "title": "本草綱目",
     "artist": "周杰倫",
     "youtubeId": "8CD06hC1KGU",
-    "introStart": 0,
+    "introStart": 20,
     "interludeStart": 60
   },
   {
@@ -869,7 +869,7 @@
     "title": "煙花易冷",
     "artist": "周杰倫",
     "youtubeId": "COMHDRqAvYE",
-    "introStart": 7,
+    "introStart": 0,
     "interludeStart": 60
   },
   {
@@ -1715,6 +1715,16 @@
     "title": "紐約地鐵",
     "artist": "周杰倫",
     "youtubeId": "VPIWFlMmEDs",
+    "introStart": 0,
+    "interludeStart": 60
+  }
+  ,
+  {
+    "album": "單曲",
+    "year": 2011,
+    "title": "麥烝瑋",
+    "artist": "周杰倫",
+    "youtubeId": "mamQvkO6lyU",
     "introStart": 0,
     "interludeStart": 60
   }
