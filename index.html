@@ -455,8 +455,12 @@
 
     .ar {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
+    }
+
+    .ar.three {
+      grid-template-columns: repeat(3, 1fr);
     }
 
     .act {
@@ -1724,6 +1728,7 @@
       $("result").className = "res hidden";
       $("result").innerHTML = "";
       $("giveUpBtn").classList.toggle("hidden", mode !== "endless");
+      document.querySelector(".ar").classList.toggle("three", mode === "endless");
 
       $("modeDisplay").textContent =
         mode === "intro"
@@ -1806,9 +1811,20 @@
 
       $("answerInput").value = "";
       renderAnswerArea();
-      questionStartTime = performance.now();
-      startQuestionTimer();
+
+      timeLeft = Math.max(3, Number($("timeLimitInput").value || 20));
+      $("time").textContent = timeLeft;
+      updateTimeDanger();
+
       autoPlayCurrentClip();
+
+      const clipLengthMs = Math.max(2, Number($("clipLengthInput").value || 5)) * 1000;
+
+      setTimeout(() => {
+        if (answered || isPaused || currentSong == null) return;
+        questionStartTime = performance.now();
+        startQuestionTimer();
+      }, clipLengthMs);
     }
 
     function renderAnswerArea() {
