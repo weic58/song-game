@@ -137,6 +137,31 @@
 
     .screen.active { display: flex; }
 
+    #home.screen {
+      justify-content: flex-start;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      gap: 8px;
+    }
+
+    #home .loading {
+      margin-bottom: 2px;
+    }
+
+    #home .cards {
+      margin-top: 4px;
+      gap: 8px;
+    }
+
+    #home .note {
+      margin-top: 4px;
+    }
+
+    #home .foot {
+      margin-top: 4px;
+      padding-top: 0;
+    }
+
     .loading {
       color: var(--accent);
       font-weight: 800;
@@ -1033,12 +1058,25 @@
 
       <div class="sg">
         <span class="sl">每題秒數</span>
-        <input id="timeLimitInput" type="number" min="3" max="120" value="10" />
+        <input id="timeLimitInput" type="number" min="3" max="120" value="20" />
       </div>
 
       <div class="sg">
         <span class="sl">片段長度（秒）</span>
-        <input id="clipLengthInput" type="number" min="2" max="20" value="6" />
+        <input id="clipLengthInput" type="number" min="2" max="20" value="5" />
+      </div>
+
+      <div class="sg">
+        <span class="sl">前奏隨機偏移上限（秒）</span>
+        <input id="introRandomRangeInput" type="number" min="0" max="120" value="30" />
+      </div>
+
+      <div class="sg">
+        <span class="sl">間奏隨機起點範圍（秒）</span>
+        <div class="grid2">
+          <input id="interludeMinInput" type="number" min="0" max="600" value="60" placeholder="最小秒數" />
+          <input id="interludeMaxInput" type="number" min="0" max="600" value="160" placeholder="最大秒數" />
+        </div>
       </div>
 
       <div class="row">
@@ -2117,10 +2155,18 @@
       clearTimeout(clipStopper);
       $("disc").classList.remove("playing");
 
+      const introBase = Number(song.introStart || 0);
+      const introRandomMax = Math.max(0, Number($("introRandomRangeInput")?.value || 30));
+      const introOffset = Math.floor(Math.random() * (introRandomMax + 1));
+
+      const interludeMin = Math.max(0, Number($("interludeMinInput")?.value || 60));
+      const interludeMaxRaw = Math.max(0, Number($("interludeMaxInput")?.value || 160));
+      const interludeMax = Math.max(interludeMin, interludeMaxRaw);
+
       const baseStart =
         clipType === "intro"
-          ? Number(song.introStart || 0)
-          : Math.floor(Math.random() * (160 - 60 + 1)) + 60;
+          ? introBase + introOffset
+          : Math.floor(Math.random() * (interludeMax - interludeMin + 1)) + interludeMin;
 
       const length = Math.max(2, Number($("clipLengthInput").value || 6));
       const startAt = baseStart + offset;
@@ -2483,7 +2529,7 @@
 
     async function initApp() {
       await loadSongsFromJson();
-      selectedAlbums = new Set(getAllAlbums());
+      selectedAlbums = new Set();
       renderAlbumGrid();
       renderSettingButtons();
       renderManageList();
