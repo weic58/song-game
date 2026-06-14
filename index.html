@@ -1176,6 +1176,7 @@
     ];
 
     const STORAGE_KEY = "guess_song_links";
+    const SETTINGS_KEY = "guess_song_settings";
     const persistedMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
     const savedTheme = localStorage.getItem("guess_song_theme") || "dark";
     const savedAnswerMode = localStorage.getItem("guess_song_answer_mode") || "multiple";
@@ -1461,6 +1462,35 @@
       $("customAlbumGroup").classList.toggle("hidden", albumMode !== "custom");
     }
 
+    function saveGameSettings() {
+      const settings = {
+        roundCount: $("roundCountInput").value,
+        timeLimit: $("timeLimitInput").value,
+        clipLength: $("clipLengthInput").value,
+        introRandomRange: $("introRandomRangeInput").value,
+        interludeMin: $("interludeMinInput").value,
+        interludeMax: $("interludeMaxInput").value,
+        selectedAlbums: [...selectedAlbums]
+      };
+
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
+
+    function loadGameSettings() {
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+
+      if (settings.roundCount != null) $("roundCountInput").value = settings.roundCount;
+      if (settings.timeLimit != null) $("timeLimitInput").value = settings.timeLimit;
+      if (settings.clipLength != null) $("clipLengthInput").value = settings.clipLength;
+      if (settings.introRandomRange != null) $("introRandomRangeInput").value = settings.introRandomRange;
+      if (settings.interludeMin != null) $("interludeMinInput").value = settings.interludeMin;
+      if (settings.interludeMax != null) $("interludeMaxInput").value = settings.interludeMax;
+
+      if (Array.isArray(settings.selectedAlbums)) {
+        selectedAlbums = new Set(settings.selectedAlbums);
+      }
+    }
+
     function getAllAlbums() {
       return [...new Set(songLibrary.map(song => song.album).filter(Boolean))];
     }
@@ -1476,6 +1506,7 @@
         b.onclick = () => {
           if (selectedAlbums.has(albumName)) selectedAlbums.delete(albumName);
           else selectedAlbums.add(albumName);
+          saveGameSettings();
           renderAlbumGrid();
         };
         $("albumGrid").appendChild(b);
@@ -1484,6 +1515,7 @@
 
     function clearAllAlbums() {
       selectedAlbums.clear();
+      saveGameSettings();
       renderAlbumGrid();
     }
 
@@ -1649,6 +1681,7 @@
 
     function selectAllAlbums() {
       selectedAlbums = new Set(getAllAlbums());
+      saveGameSettings();
       renderAlbumGrid();
     }
 
@@ -2522,6 +2555,18 @@
       $("csvFileStatus").textContent = file ? `已選擇：${file.name}` : "尚未選擇檔案";
     });
 
+    [
+      "roundCountInput",
+      "timeLimitInput",
+      "clipLengthInput",
+      "introRandomRangeInput",
+      "interludeMinInput",
+      "interludeMaxInput"
+    ].forEach(id => {
+      $(id).addEventListener("input", saveGameSettings);
+      $(id).addEventListener("change", saveGameSettings);
+    });
+
     document.querySelectorAll("[data-answer-mode]").forEach(b => {
       b.addEventListener("click", () => {
         answerMode = b.dataset.answerMode;
@@ -2547,6 +2592,7 @@
     async function initApp() {
       await loadSongsFromJson();
       selectedAlbums = new Set();
+      loadGameSettings();
       renderAlbumGrid();
       renderSettingButtons();
       renderManageList();
