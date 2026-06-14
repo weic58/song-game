@@ -1235,6 +1235,7 @@
     let totalAnswerTime = 0;
     let player = null;
     let ytReady = false;
+    let pendingClipRequest = null;
     let usedAnswers = [];
     let currentAlbumPool = [];
     let adModeOpen = false;
@@ -1389,7 +1390,7 @@
     }
 
     function onYouTubeIframeAPIReady() {
-      ytReady = true;
+      ytReady = false;
       player = new YT.Player("yt", {
         height: "220",
         width: "360",
@@ -1401,6 +1402,14 @@
           playsinline: 1
         },
         events: {
+          onReady: () => {
+            ytReady = true;
+            if (pendingClipRequest) {
+              const req = pendingClipRequest;
+              pendingClipRequest = null;
+              playClipForSong(req.song, req.clipType, req.offset);
+            }
+          },
           onStateChange: e => {
             const d = $("disc");
             if (e.data === YT.PlayerState.PLAYING) d.classList.add("playing");
@@ -1477,7 +1486,14 @@
     }
 
     function loadGameSettings() {
-      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      let settings = {};
+
+      try {
+        settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      } catch (e) {
+        localStorage.removeItem(SETTINGS_KEY);
+        settings = {};
+      }
 
       if (settings.roundCount != null) $("roundCountInput").value = settings.roundCount;
       if (settings.timeLimit != null) $("timeLimitInput").value = settings.timeLimit;
@@ -2189,6 +2205,7 @@
     }
 
     function stopPlayback() {
+      pendingClipRequest = null;
       clearTimeout(clipStopper);
       $("disc").classList.remove("playing");
 
@@ -2198,7 +2215,12 @@
     }
 
     function playClipForSong(song, clipType, offset = 0) {
-      if (!song || !song.youtubeId || isPaused || !ytReady || !player || !player.loadVideoById) {
+      if (!song || !song.youtubeId || isPaused) {
+        return;
+      }
+
+      if (!ytReady || !player || !player.loadVideoById) {
+        pendingClipRequest = { song, clipType, offset };
         return;
       }
 
@@ -2579,6 +2601,7 @@
       b.addEventListener("click", () => {
         albumMode = b.dataset.albumMode;
         localStorage.setItem("guess_song_album_mode", albumMode);
+        saveGameSettings();
         renderSettingButtons();
       });
     });
